@@ -10,6 +10,7 @@ import '../widgets/neo_button.dart';
 import '../widgets/neo_dialog.dart';
 import '../widgets/progress_bar_widget.dart';
 import '../widgets/realtime_clock_widget.dart';
+import '../widgets/logo_widget.dart';
 import 'goal_detail_screen.dart';
 import 'add_edit_goal_screen.dart';
 import 'add_edit_transaction_screen.dart';
@@ -136,13 +137,20 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         elevation: 0,
         centerTitle: false,
-        title: Text(
-          'YOKNABUNG',
-          style: TextStyle(
-            color: textColor,
-            fontSize: 22,
-            fontWeight: FontWeight.w800,
-          ),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            LogoWidget(size: 32, hasBorder: true),
+            const SizedBox(width: 8),
+            Text(
+              'YOKNABUNG',
+              style: TextStyle(
+                color: textColor,
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(2.5),
@@ -436,6 +444,8 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  LogoWidget(size: 80, hasBorder: true),
+                  const SizedBox(height: 20),
                   Text(
                     'Belum ada tabungan',
                     style: TextStyle(
