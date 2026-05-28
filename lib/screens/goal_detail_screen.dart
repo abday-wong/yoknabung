@@ -836,7 +836,7 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
           ),
           const SizedBox(height: 32),
         ],
-      );
-    }
+      ),
+    );
   }
 }
