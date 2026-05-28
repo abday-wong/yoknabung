@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/savings_provider.dart';
 import 'neo_button.dart';
 
 class NeoDialog {
@@ -16,18 +18,24 @@ class NeoDialog {
       context: context,
       barrierColor: Colors.black54,
       builder: (BuildContext context) {
+        final provider = Provider.of<SavingsProvider>(context, listen: false);
+        final isDark = provider.isDarkMode;
+        final textColor = isDark ? Colors.white : const Color(0xFF111111);
+        final borderColor = isDark ? Colors.white : const Color(0xFF111111);
+        final cardBgColor = isDark ? const Color(0xFF1E1E1E) : const Color(0xFFFFFDE7);
+
         return Dialog(
           elevation: 0,
           backgroundColor: Colors.transparent,
           insetPadding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
           child: Container(
             decoration: BoxDecoration(
-              color: const Color(0xFFFFFDE7), // cream
-              border: Border.all(color: const Color(0xFF111111), width: 2.5),
-              boxShadow: const [
+              color: cardBgColor,
+              border: Border.all(color: borderColor, width: 2.5),
+              boxShadow: [
                 BoxShadow(
-                  color: Color(0xFF111111),
-                  offset: Offset(5, 5),
+                  color: borderColor,
+                  offset: const Offset(5, 5),
                   blurRadius: 0,
                 ),
               ],
@@ -39,19 +47,19 @@ class NeoDialog {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF111111),
+                    color: textColor,
                   ),
                 ),
                 const SizedBox(height: 12),
                 Text(
                   body,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-                    color: Color(0xFF111111),
+                    color: textColor,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -61,7 +69,8 @@ class NeoDialog {
                     if (secondaryLabel != null) ...[
                       NeoButton(
                         text: secondaryLabel,
-                        color: Colors.white,
+                        color: isDark ? const Color(0xFF2E2E2E) : Colors.white,
+                        textColor: textColor,
                         onPressed: onSecondaryPressed ?? () => Navigator.pop(context),
                       ),
                       const SizedBox(width: 12),
@@ -69,6 +78,7 @@ class NeoDialog {
                     NeoButton(
                       text: primaryLabel,
                       color: primaryColor,
+                      textColor: const Color(0xFF111111),
                       onPressed: onPrimaryPressed,
                     ),
                   ],
@@ -87,12 +97,17 @@ class NeoDialog {
     String? actionLabel,
     VoidCallback? onAction,
   }) {
+    final provider = Provider.of<SavingsProvider>(context, listen: false);
+    final isDark = provider.isDarkMode;
+    final snackBgColor = isDark ? const Color(0xFF2E2E2E) : const Color(0xFF111111);
+    final snackBorderColor = isDark ? Colors.white : const Color(0xFF111111);
+
     ScaffoldMessenger.of(context).removeCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        backgroundColor: const Color(0xFF111111),
+        backgroundColor: snackBgColor,
         behavior: SnackBarBehavior.floating,
-        shape: Border.all(color: const Color(0xFF111111), width: 2),
+        shape: Border.all(color: snackBorderColor, width: 2),
         margin: const EdgeInsets.all(16),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         elevation: 0,
@@ -120,12 +135,18 @@ class NeoDialog {
     required String title,
     required List<Widget> children,
   }) {
+    final provider = Provider.of<SavingsProvider>(context, listen: false);
+    final isDark = provider.isDarkMode;
+    final textColor = isDark ? Colors.white : const Color(0xFF111111);
+    final borderColor = isDark ? Colors.white : const Color(0xFF111111);
+    final cardBgColor = isDark ? const Color(0xFF1E1E1E) : const Color(0xFFFFFDE7);
+
     return showModalBottomSheet<T>(
       context: context,
-      backgroundColor: const Color(0xFFFFFDE7),
+      backgroundColor: cardBgColor,
       elevation: 0,
-      shape: const Border(
-        top: BorderSide(color: Color(0xFF111111), width: 2.5),
+      shape: Border(
+        top: BorderSide(color: borderColor, width: 2.5),
       ),
       builder: (context) {
         return SafeArea(
@@ -139,17 +160,17 @@ class NeoDialog {
                   child: Container(
                     width: 50,
                     height: 5,
-                    color: const Color(0xFF111111),
+                    color: borderColor,
                   ),
                 ),
                 const SizedBox(height: 16),
                 Text(
                   title,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF111111),
+                    color: textColor,
                   ),
                 ),
                 const SizedBox(height: 20),

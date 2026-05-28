@@ -126,18 +126,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<SavingsProvider>(context);
+    final isDark = provider.isDarkMode;
+    final textColor = isDark ? Colors.white : const Color(0xFF111111);
+    final borderColor = isDark ? Colors.white : const Color(0xFF111111);
     final currencyFormatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFFFDE7), // warm cream
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFFFDE7),
         elevation: 0,
         centerTitle: false,
-        title: const Text(
+        title: Text(
           'YOKNABUNG',
           style: TextStyle(
-            color: Color(0xFF111111),
+            color: textColor,
             fontSize: 22,
             fontWeight: FontWeight.w800,
           ),
@@ -145,24 +147,33 @@ class _HomeScreenState extends State<HomeScreen> {
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(2.5),
           child: Container(
-            color: const Color(0xFF111111),
+            color: borderColor,
             height: 2.5,
           ),
         ),
         actions: [
+          IconButton(
+            icon: Icon(
+              isDark ? Icons.wb_sunny : Icons.nights_stay,
+              color: textColor,
+            ),
+            onPressed: () {
+              provider.toggleThemeMode();
+            },
+          ),
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: Center(
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(color: const Color(0xFF111111), width: 2),
+                  color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                  border: Border.all(color: borderColor, width: 2),
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 child: Text(
                   _timeStr,
-                  style: const TextStyle(
-                    color: Color(0xFF111111),
+                  style: TextStyle(
+                    color: textColor,
                     fontWeight: FontWeight.w800,
                     fontSize: 14,
                   ),
@@ -175,9 +186,9 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Consumer<SavingsProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading) {
-            return const Center(
+            return Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF111111)),
+                valueColor: AlwaysStoppedAnimation<Color>(borderColor),
               ),
             );
           }
@@ -190,10 +201,10 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       ),
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
           border: Border(
-            top: BorderSide(color: const Color(0xFF111111), width: 2.5),
+            top: BorderSide(color: borderColor, width: 2.5),
           ),
         ),
         height: 64,
@@ -203,22 +214,24 @@ class _HomeScreenState extends State<HomeScreen> {
               child: GestureDetector(
                 onTap: () => setState(() => _currentIndex = 0),
                 child: Container(
-                  color: _currentIndex == 0 ? const Color(0xFFFFE500) : Colors.white,
+                  color: _currentIndex == 0
+                      ? const Color(0xFFFFE500)
+                      : (isDark ? const Color(0xFF1E1E1E) : Colors.white),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
                         Icons.track_changes,
-                        color: const Color(0xFF111111),
+                        color: _currentIndex == 0 ? const Color(0xFF111111) : textColor,
                         size: 22,
                       ),
                       const SizedBox(height: 4),
-                      const Text(
+                      Text(
                         'Goal Saya',
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w800,
-                          color: Color(0xFF111111),
+                          color: _currentIndex == 0 ? const Color(0xFF111111) : textColor,
                         ),
                       ),
                     ],
@@ -226,27 +239,29 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            Container(width: 2.5, color: const Color(0xFF111111)),
+            Container(width: 2.5, color: borderColor),
             Expanded(
               child: GestureDetector(
                 onTap: () => setState(() => _currentIndex = 1),
                 child: Container(
-                  color: _currentIndex == 1 ? const Color(0xFFFFE500) : Colors.white,
+                  color: _currentIndex == 1
+                      ? const Color(0xFFFFE500)
+                      : (isDark ? const Color(0xFF1E1E1E) : Colors.white),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
                         Icons.history,
-                        color: const Color(0xFF111111),
+                        color: _currentIndex == 1 ? const Color(0xFF111111) : textColor,
                         size: 22,
                       ),
                       const SizedBox(height: 4),
-                      const Text(
+                      Text(
                         'Histori Tabungan',
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w800,
-                          color: Color(0xFF111111),
+                          color: _currentIndex == 1 ? const Color(0xFF111111) : textColor,
                         ),
                       ),
                     ],
@@ -262,6 +277,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildGoalsView(BuildContext context, SavingsProvider provider, NumberFormat currencyFormatter) {
     final goals = provider.goals;
+    final isDark = provider.isDarkMode;
+    final textColor = isDark ? Colors.white : const Color(0xFF111111);
+    final borderColor = isDark ? Colors.white : const Color(0xFF111111);
+    final cardBgColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+    final subtextColor = isDark ? Colors.white70 : Colors.black54;
 
     // Compute summary row data
     double totalSaved = 0;
@@ -382,12 +402,12 @@ class _HomeScreenState extends State<HomeScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Daftar Tabungan',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF111111),
+                  color: textColor,
                 ),
               ),
               if (goals.isNotEmpty)
@@ -411,17 +431,17 @@ class _HomeScreenState extends State<HomeScreen> {
           // Goals List / Empty State
           if (goals.isEmpty)
             NeoCard(
-              color: Colors.white,
+              color: cardBgColor,
               padding: const EdgeInsets.all(24),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text(
+                  Text(
                     'Belum ada tabungan',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF111111),
+                      color: textColor,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -464,7 +484,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                   onLongPress: () => _showGoalOptions(context, provider, goal),
                   child: NeoCard(
-                    color: isGoalCompleted ? const Color(0xFF00C49A).withOpacity(0.1) : Colors.white,
+                    color: isGoalCompleted
+                        ? const Color(0xFF00C49A).withOpacity(isDark ? 0.25 : 0.1)
+                        : cardBgColor,
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -478,7 +500,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               height: 46,
                               decoration: BoxDecoration(
                                 color: const Color(0xFFFFE500),
-                                border: Border.all(color: const Color(0xFF111111), width: 2),
+                                border: Border.all(color: borderColor, width: 2),
                               ),
                               child: Center(
                                 child: Text(
@@ -495,25 +517,25 @@ class _HomeScreenState extends State<HomeScreen> {
                                 children: [
                                   Text(
                                     goal.title,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w800,
-                                      color: Color(0xFF111111),
+                                      color: textColor,
                                     ),
                                   ),
                                   const SizedBox(height: 4),
                                   Container(
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFF4361EE).withOpacity(0.1),
-                                      border: Border.all(color: const Color(0xFF111111), width: 1.5),
+                                      color: const Color(0xFF4361EE).withOpacity(0.15),
+                                      border: Border.all(color: borderColor, width: 1.5),
                                     ),
                                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                     child: Text(
                                       _getCategoryIndonesian(goal.category),
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 10,
                                         fontWeight: FontWeight.w800,
-                                        color: Color(0xFF111111),
+                                        color: textColor,
                                       ),
                                     ),
                                   ),
@@ -554,10 +576,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             Text(
                               'dari ${currencyFormatter.format(goal.targetAmount)}',
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.black54,
-                                  fontSize: 12),
+                              style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                color: subtextColor,
+                                fontSize: 12,
+                              ),
                             ),
                           ],
                         ),
@@ -574,10 +597,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: [
                             Text(
                               '${percentage.toStringAsFixed(0)}% Selesai',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontWeight: FontWeight.w800,
                                 fontSize: 12,
-                                color: Color(0xFF111111),
+                                color: textColor,
                               ),
                             ),
                             Text(
@@ -587,7 +610,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 fontSize: 12,
                                 color: isGoalCompleted
                                     ? const Color(0xFF00C49A)
-                                    : (daysRemaining < 30 ? const Color(0xFFFF5733) : const Color(0xFF111111)),
+                                    : (daysRemaining < 30 ? const Color(0xFFFF5733) : textColor),
                               ),
                             ),
                           ],
@@ -605,6 +628,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildHistoryView(BuildContext context, SavingsProvider provider, NumberFormat currencyFormatter) {
     final DateFormat dateFormatter = DateFormat('EEEE, dd MMMM yyyy', 'id_ID');
+    final isDark = provider.isDarkMode;
+    final textColor = isDark ? Colors.white : const Color(0xFF111111);
+    final borderColor = isDark ? Colors.white : const Color(0xFF111111);
+    final cardBgColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+    final subtextColor = isDark ? Colors.white70 : Colors.black54;
+    final iconMutedColor = isDark ? Colors.white38 : Colors.black38;
 
     // Aggregate all transactions
     final List<GlobalTransaction> allTxs = [];
@@ -622,33 +651,33 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Padding(
           padding: const EdgeInsets.all(24.0),
           child: NeoCard(
-            color: Colors.white,
+            color: cardBgColor,
             padding: const EdgeInsets.all(24),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
+                Icon(
                   Icons.history_toggle_off,
                   size: 48,
-                  color: Colors.black38,
+                  color: iconMutedColor,
                 ),
                 const SizedBox(height: 16),
-                const Text(
+                Text(
                   'Belum ada riwayat menabung',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF111111),
+                    color: textColor,
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'Setiap setoran atau penarikan yang Anda lakukan pada goal tabungan akan tampil di sini.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: Colors.black54,
+                    color: subtextColor,
                   ),
                 ),
               ],
@@ -678,7 +707,7 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           },
           child: NeoCard(
-            color: Colors.white,
+            color: cardBgColor,
             padding: const EdgeInsets.all(12.0),
             child: Row(
               children: [
@@ -688,7 +717,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: 40,
                   decoration: BoxDecoration(
                     color: const Color(0xFFFFE500),
-                    border: Border.all(color: const Color(0xFF111111), width: 2),
+                    border: Border.all(color: borderColor, width: 2),
                   ),
                   child: Center(
                     child: Text(
@@ -706,10 +735,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       Text(
                         tx.note.isEmpty ? (isDeposit ? 'Deposit' : 'Penarikan') : tx.note,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.w800,
                           fontSize: 14,
-                          color: Color(0xFF111111),
+                          color: textColor,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -717,16 +746,16 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Container(
                             decoration: BoxDecoration(
-                              color: const Color(0xFF4361EE).withOpacity(0.1),
-                              border: Border.all(color: const Color(0xFF111111), width: 1),
+                              color: const Color(0xFF4361EE).withOpacity(0.15),
+                              border: Border.all(color: borderColor, width: 1),
                             ),
                             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                             child: Text(
                               item.goal.title,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 9,
                                 fontWeight: FontWeight.w800,
-                                color: Color(0xFF111111),
+                                color: textColor,
                               ),
                             ),
                           ),
@@ -735,10 +764,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(height: 4),
                       Text(
                         dateFormatter.format(tx.date),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w500,
-                          color: Colors.black54,
+                          color: subtextColor,
                         ),
                       ),
                     ],
@@ -755,10 +784,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                const Icon(
+                Icon(
                   Icons.chevron_right,
                   size: 16,
-                  color: Colors.black54,
+                  color: subtextColor,
                 ),
               ],
             ),

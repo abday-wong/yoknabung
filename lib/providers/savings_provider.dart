@@ -11,12 +11,29 @@ class SavingsProvider with ChangeNotifier {
   List<SavingGoal> _goals = [];
   bool _isLoading = true;
   final Uuid _uuid = const Uuid();
+  bool _isDarkMode = false;
 
   List<SavingGoal> get goals => _goals;
   bool get isLoading => _isLoading;
+  bool get isDarkMode => _isDarkMode;
 
   SavingsProvider() {
     loadFromPrefs();
+  }
+
+  void toggleThemeMode() {
+    _isDarkMode = !_isDarkMode;
+    _saveThemeToPrefs();
+    notifyListeners();
+  }
+
+  Future<void> _saveThemeToPrefs() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('is_dark_mode', _isDarkMode);
+    } catch (e) {
+      debugPrint('Error saving theme mode: $e');
+    }
   }
 
   // --- CRUD OPERATIONS ---
@@ -266,6 +283,7 @@ class SavingsProvider with ChangeNotifier {
 
     try {
       final prefs = await SharedPreferences.getInstance();
+      _isDarkMode = prefs.getBool('is_dark_mode') ?? false;
       final String? data = prefs.getString('savings_goals');
       if (data == null || data.isEmpty) {
         _loadSampleData();

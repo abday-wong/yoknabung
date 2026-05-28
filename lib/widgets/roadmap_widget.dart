@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/saving_goal.dart';
-import '../models/milestone.dart';
 import '../providers/savings_provider.dart';
 
 class RoadmapWidget extends StatelessWidget {
@@ -15,7 +14,13 @@ class RoadmapWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<SavingsProvider>(context, listen: false);
+    final provider = Provider.of<SavingsProvider>(context);
+    final isDark = provider.isDarkMode;
+    final textColor = isDark ? Colors.white : const Color(0xFF111111);
+    final borderColor = isDark ? Colors.white : const Color(0xFF111111);
+    final cardBgColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+    final subtextColor = isDark ? Colors.white70 : Colors.black54;
+
     final avgDaily = provider.getAverageDailyDeposit(goal);
     final formatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
     final DateFormat df = DateFormat('dd MMMM yyyy', 'id_ID');
@@ -51,15 +56,15 @@ class RoadmapWidget extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: isReached ? const Color(0xFFFFE500) : Colors.white,
+                      color: isReached ? const Color(0xFFFFE500) : cardBgColor,
                       border: Border.all(
-                        color: const Color(0xFF111111),
+                        color: borderColor,
                         width: 2.5,
                       ),
-                      boxShadow: const [
+                      boxShadow: [
                         BoxShadow(
-                          color: Color(0xFF111111),
-                          offset: Offset(3, 3),
+                          color: borderColor,
+                          offset: const Offset(3, 3),
                           blurRadius: 0,
                         ),
                       ],
@@ -73,8 +78,8 @@ class RoadmapWidget extends StatelessWidget {
                             )
                           : Text(
                               '${milestone.percentage.toInt()}%',
-                              style: const TextStyle(
-                                color: Color(0xFF111111),
+                              style: TextStyle(
+                                color: textColor,
                                 fontWeight: FontWeight.w800,
                                 fontSize: 12,
                               ),
@@ -86,7 +91,7 @@ class RoadmapWidget extends StatelessWidget {
                     Expanded(
                       child: Container(
                         width: 2.5,
-                        color: const Color(0xFF111111),
+                        color: borderColor,
                       ),
                     )
                   else
@@ -103,19 +108,19 @@ class RoadmapWidget extends StatelessWidget {
                     children: [
                       Text(
                         milestone.label,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
-                          color: Color(0xFF111111),
+                          color: textColor,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         'Target: ${formatter.format(milestone.targetAmount)}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: Color(0xFF111111),
+                          color: textColor,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -124,7 +129,7 @@ class RoadmapWidget extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: isReached ? const Color(0xFF00C49A) : Colors.black54,
+                          color: isReached ? const Color(0xFF00C49A) : subtextColor,
                         ),
                       ),
                     ],

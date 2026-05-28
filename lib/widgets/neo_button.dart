@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/savings_provider.dart';
 
 class NeoButton extends StatefulWidget {
   final Widget? child;
   final String? text;
   final IconData? icon;
   final Color color;
+  final Color? textColor;
   final VoidCallback? onPressed;
   final EdgeInsetsGeometry padding;
   final double borderWidth;
@@ -15,6 +18,7 @@ class NeoButton extends StatefulWidget {
     this.text,
     this.icon,
     this.color = const Color(0xFFFFE500), // Default yellow accent
+    this.textColor,
     this.onPressed,
     this.padding = const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
     this.borderWidth = 2.5,
@@ -56,6 +60,9 @@ class _NeoButtonState extends State<NeoButton> {
   Widget build(BuildContext context) {
     final shadowOffset = _isPressed ? 1.0 : 3.0;
     final translation = _isPressed ? 2.0 : 0.0;
+    final isDark = Provider.of<SavingsProvider>(context).isDarkMode;
+    final borderColor = isDark ? Colors.white : const Color(0xFF111111);
+    final shadowColor = isDark ? Colors.black : const Color(0xFF111111);
 
     return GestureDetector(
       onTapDown: _handleTapDown,
@@ -67,12 +74,12 @@ class _NeoButtonState extends State<NeoButton> {
           decoration: BoxDecoration(
             color: widget.onPressed == null ? Colors.grey.shade400 : widget.color,
             border: Border.all(
-              color: const Color(0xFF111111),
+              color: borderColor,
               width: widget.borderWidth,
             ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF111111),
+                color: shadowColor,
                 offset: Offset(shadowOffset, shadowOffset),
                 blurRadius: 0,
               ),
@@ -85,14 +92,14 @@ class _NeoButtonState extends State<NeoButton> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (widget.icon != null) ...[
-                  Icon(widget.icon, color: const Color(0xFF111111), size: 20),
+                  Icon(widget.icon, color: widget.textColor ?? const Color(0xFF111111), size: 20),
                   const SizedBox(width: 8),
                 ],
                 if (widget.text != null)
                   Text(
                     widget.text!,
-                    style: const TextStyle(
-                      color: Color(0xFF111111),
+                    style: TextStyle(
+                      color: widget.textColor ?? const Color(0xFF111111),
                       fontWeight: FontWeight.w800,
                     ),
                   ),

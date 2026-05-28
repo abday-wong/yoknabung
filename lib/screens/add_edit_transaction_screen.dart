@@ -209,17 +209,25 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
     final bool isEdit = widget.existingTransaction != null;
     final DateFormat df = DateFormat('dd MMMM yyyy', 'id_ID');
 
+    final provider = Provider.of<SavingsProvider>(context);
+    final isDark = provider.isDarkMode;
+    final textColor = isDark ? Colors.white : const Color(0xFF111111);
+    final borderColor = isDark ? Colors.white : const Color(0xFF111111);
+    final cardBgColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+    final subtextColor = isDark ? Colors.white70 : Colors.black54;
+    final hintColor = isDark ? Colors.white30 : Colors.black38;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFFFFDE7),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFFFDE7),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         centerTitle: true,
-        iconTheme: const IconThemeData(color: Color(0xFF111111)),
+        iconTheme: IconThemeData(color: textColor),
         title: Text(
           isEdit ? 'Edit Transaksi' : 'Catat Transaksi',
-          style: const TextStyle(
-            color: Color(0xFF111111),
+          style: TextStyle(
+            color: textColor,
             fontSize: 18,
             fontWeight: FontWeight.w800,
           ),
@@ -227,7 +235,7 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(2.5),
           child: Container(
-            color: const Color(0xFF111111),
+            color: borderColor,
             height: 2.5,
           ),
         ),
@@ -241,14 +249,14 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Toggle Deposit / Withdrawal (Neo Brutalist Style)
-              const Text(
+              Text(
                 'Jenis Transaksi',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF111111)),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textColor),
               ),
               const SizedBox(height: 8),
               Container(
                 decoration: BoxDecoration(
-                  border: Border.all(color: const Color(0xFF111111), width: 2.5),
+                  border: Border.all(color: borderColor, width: 2.5),
                 ),
                 child: Row(
                   children: [
@@ -263,21 +271,21 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
                           height: 50,
                           color: _type == TransactionType.deposit
                               ? const Color(0xFF00C49A) // Green
-                              : Colors.white,
+                              : cardBgColor,
                           child: Center(
                             child: Text(
                               'DEPOSIT (MASUK)',
                               style: TextStyle(
                                 fontWeight: FontWeight.w800,
                                 fontSize: 13,
-                                color: _type == TransactionType.deposit ? Colors.white : const Color(0xFF111111),
+                                color: _type == TransactionType.deposit ? Colors.white : textColor,
                               ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                    Container(width: 2.5, height: 50, color: const Color(0xFF111111)),
+                    Container(width: 2.5, height: 50, color: borderColor),
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
@@ -289,14 +297,14 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
                           height: 50,
                           color: _type == TransactionType.withdrawal
                               ? const Color(0xFFFF5733) // Red-orange
-                              : Colors.white,
+                              : cardBgColor,
                           child: Center(
                             child: Text(
                               'TARIK (KELUAR)',
                               style: TextStyle(
                                 fontWeight: FontWeight.w800,
                                 fontSize: 13,
-                                color: _type == TransactionType.withdrawal ? Colors.white : const Color(0xFF111111),
+                                color: _type == TransactionType.withdrawal ? Colors.white : textColor,
                               ),
                             ),
                           ),
@@ -309,15 +317,15 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
               const SizedBox(height: 20),
 
               // Amount Field
-              const Text(
+              Text(
                 'Nominal (Rp)',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF111111)),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textColor),
               ),
               const SizedBox(height: 8),
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(color: const Color(0xFF111111), width: 2.5),
+                  color: cardBgColor,
+                  border: Border.all(color: borderColor, width: 2.5),
                 ),
                 child: TextFormField(
                   controller: _amountController,
@@ -332,13 +340,13 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
                     }
                     return null;
                   },
-                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 18, color: Color(0xFF111111)),
-                  decoration: const InputDecoration(
+                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18, color: textColor),
+                  decoration: InputDecoration(
                     hintText: '0',
-                    hintStyle: TextStyle(color: Colors.black26),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    hintStyle: TextStyle(color: hintColor),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     border: InputBorder.none,
-                    errorStyle: TextStyle(fontWeight: FontWeight.w800, color: Color(0xFFFF5733)),
+                    errorStyle: const TextStyle(fontWeight: FontWeight.w800, color: Color(0xFFFF5733)),
                   ),
                 ),
               ),
@@ -352,25 +360,29 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
                   NeoButton(
                     text: '+100rb',
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                    color: Colors.white,
+                    color: cardBgColor,
+                    textColor: textColor,
                     onPressed: () => _addQuickAmount(100000),
                   ),
                   NeoButton(
                     text: '+500rb',
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                    color: Colors.white,
+                    color: cardBgColor,
+                    textColor: textColor,
                     onPressed: () => _addQuickAmount(500000),
                   ),
                   NeoButton(
                     text: '+1jt',
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                    color: Colors.white,
+                    color: cardBgColor,
+                    textColor: textColor,
                     onPressed: () => _addQuickAmount(1000000),
                   ),
                   NeoButton(
                     text: '+5jt',
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                    color: Colors.white,
+                    color: cardBgColor,
+                    textColor: textColor,
                     onPressed: () => _addQuickAmount(5000000),
                   ),
                 ],
@@ -378,18 +390,18 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
               const SizedBox(height: 20),
 
               // Date Picker
-              const Text(
+              Text(
                 'Tanggal Transaksi',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF111111)),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textColor),
               ),
               const SizedBox(height: 8),
               GestureDetector(
                 onTap: () => _selectDate(context),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(color: const Color(0xFF111111), width: 2.5),
-                    boxShadow: const [BoxShadow(color: Color(0xFF111111), offset: Offset(2, 2))],
+                    color: cardBgColor,
+                    border: Border.all(color: borderColor, width: 2.5),
+                    boxShadow: [BoxShadow(color: borderColor, offset: const Offset(2, 2))],
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   child: Row(
@@ -397,9 +409,9 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
                     children: [
                       Text(
                         df.format(_date),
-                        style: const TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF111111)),
+                        style: TextStyle(fontWeight: FontWeight.w800, color: textColor),
                       ),
-                      const Icon(Icons.calendar_today, color: Color(0xFF111111)),
+                      Icon(Icons.calendar_today, color: textColor),
                     ],
                   ),
                 ),
@@ -407,24 +419,24 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
               const SizedBox(height: 20),
 
               // Note Field
-              const Text(
+              Text(
                 'Keterangan (Opsional)',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF111111)),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textColor),
               ),
               const SizedBox(height: 8),
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(color: const Color(0xFF111111), width: 2.5),
+                  color: cardBgColor,
+                  border: Border.all(color: borderColor, width: 2.5),
                 ),
                 child: TextFormField(
                   controller: _noteController,
                   maxLines: 2,
-                  style: const TextStyle(fontWeight: FontWeight.w500, color: Color(0xFF111111)),
-                  decoration: const InputDecoration(
+                  style: TextStyle(fontWeight: FontWeight.w500, color: textColor),
+                  decoration: InputDecoration(
                     hintText: 'Catatan kecil, misal: Gajian, Bonus, dsb.',
-                    hintStyle: TextStyle(color: Colors.black38),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    hintStyle: TextStyle(color: hintColor),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     border: InputBorder.none,
                   ),
                 ),
@@ -435,6 +447,7 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
               NeoButton(
                 text: isEdit ? 'Simpan Transaksi' : 'Catat Transaksi Baru',
                 color: const Color(0xFFFFE500),
+                textColor: const Color(0xFF111111),
                 onPressed: _saveTransaction,
               ),
             ],

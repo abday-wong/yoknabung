@@ -16,6 +16,11 @@ class SavingsCalculatorWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<SavingsProvider>(context);
+    final isDark = provider.isDarkMode;
+    final textColor = isDark ? Colors.white : const Color(0xFF111111);
+    final borderColor = isDark ? Colors.white : const Color(0xFF111111);
+    final cardBgColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+
     final currencyFormatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
     final DateFormat dateFormatter = DateFormat('d MMMM yyyy', 'id_ID');
 
@@ -41,12 +46,12 @@ class SavingsCalculatorWidget extends StatelessWidget {
       projectedDateText = 'Belum ada proyeksi';
     }
 
-    Widget buildCalculatorRow(String label, String value, Color rowBg, {bool isValRed = false}) {
+    Widget buildCalculatorRow(String label, String value, Color rowBg, {bool isValRed = false, bool forceDarkText = false}) {
       return Container(
         margin: const EdgeInsets.only(bottom: 8.0),
         decoration: BoxDecoration(
           color: rowBg,
-          border: Border.all(color: const Color(0xFF111111), width: 2),
+          border: Border.all(color: borderColor, width: 2),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Row(
@@ -54,9 +59,9 @@ class SavingsCalculatorWidget extends StatelessWidget {
           children: [
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF111111),
+                color: forceDarkText ? const Color(0xFF111111) : textColor,
                 fontSize: 13,
               ),
             ),
@@ -66,7 +71,9 @@ class SavingsCalculatorWidget extends StatelessWidget {
                 textAlign: TextAlign.end,
                 style: TextStyle(
                   fontWeight: FontWeight.w800,
-                  color: isValRed ? const Color(0xFFFF5733) : const Color(0xFF111111),
+                  color: isValRed
+                      ? const Color(0xFFFF5733)
+                      : (forceDarkText ? const Color(0xFF111111) : textColor),
                   fontSize: 13,
                 ),
               ),
@@ -77,26 +84,26 @@ class SavingsCalculatorWidget extends StatelessWidget {
     }
 
     return NeoCard(
-      color: Colors.white,
+      color: cardBgColor,
       padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
+          Text(
             'Kalkulator Tabungan',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF111111),
+              color: textColor,
             ),
           ),
           const SizedBox(height: 12),
-          buildCalculatorRow('Durasi Total', durationText, const Color(0xFFFFE500)),
-          buildCalculatorRow('Perlu nabung/hari', currencyFormatter.format(dailyTarget), const Color(0xFF00C49A)),
-          buildCalculatorRow('Perlu nabung/minggu', currencyFormatter.format(weeklyTarget), const Color(0xFF4361EE).withOpacity(0.15)),
-          buildCalculatorRow('Perlu nabung/bulan', currencyFormatter.format(monthlyTarget), const Color(0xFF4361EE).withOpacity(0.15)),
-          buildCalculatorRow('Sisa waktu', '$daysRemaining hari lagi', isUrgent ? const Color(0xFFFF5733).withOpacity(0.2) : Colors.grey.shade100, isValRed: isUrgent),
-          buildCalculatorRow('Proyeksi selesai', projectedDateText, const Color(0xFFFF5733).withOpacity(0.1)),
+          buildCalculatorRow('Durasi Total', durationText, const Color(0xFFFFE500), forceDarkText: true),
+          buildCalculatorRow('Perlu nabung/hari', currencyFormatter.format(dailyTarget), const Color(0xFF00C49A), forceDarkText: true),
+          buildCalculatorRow('Perlu nabung/minggu', currencyFormatter.format(weeklyTarget), isDark ? const Color(0xFF4361EE).withOpacity(0.3) : const Color(0xFF4361EE).withOpacity(0.15)),
+          buildCalculatorRow('Perlu nabung/bulan', currencyFormatter.format(monthlyTarget), isDark ? const Color(0xFF4361EE).withOpacity(0.3) : const Color(0xFF4361EE).withOpacity(0.15)),
+          buildCalculatorRow('Sisa waktu', '$daysRemaining hari lagi', isUrgent ? (isDark ? const Color(0xFFFF5733).withOpacity(0.3) : const Color(0xFFFF5733).withOpacity(0.2)) : (isDark ? Colors.grey.shade800 : Colors.grey.shade100), isValRed: isUrgent),
+          buildCalculatorRow('Proyeksi selesai', projectedDateText, isDark ? const Color(0xFFFF5733).withOpacity(0.2) : const Color(0xFFFF5733).withOpacity(0.1)),
         ],
       ),
     );

@@ -161,25 +161,33 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
           projectionStr = 'Nabung dulu untuk melihat proyeksi!';
         }
 
+        final isDark = provider.isDarkMode;
+        final textColor = isDark ? Colors.white : const Color(0xFF111111);
+        final borderColor = isDark ? Colors.white : const Color(0xFF111111);
+        final cardBgColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+        final subtextColor = isDark ? Colors.white70 : Colors.black54;
+        final subtextColorMuted = isDark ? Colors.white30 : Colors.black45;
+        final iconMutedColor = isDark ? Colors.white38 : Colors.black38;
+
         return Scaffold(
-          backgroundColor: const Color(0xFFFFFDE7),
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           appBar: AppBar(
-            backgroundColor: const Color(0xFFFFFDE7),
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             elevation: 0,
-            iconTheme: const IconThemeData(color: Color(0xFF111111)),
+            iconTheme: IconThemeData(color: textColor),
             title: Text(
               goal.title,
-              style: const TextStyle(
-                color: Color(0xFF111111),
+              style: TextStyle(
+                color: textColor,
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
               ),
             ),
             bottom: TabBar(
               controller: _tabController,
-              labelColor: const Color(0xFF111111),
-              unselectedLabelColor: Colors.black54,
-              indicatorColor: const Color(0xFF111111),
+              labelColor: textColor,
+              unselectedLabelColor: subtextColor,
+              indicatorColor: textColor,
               indicatorWeight: 3.0,
               labelStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
               tabs: const [
@@ -190,7 +198,7 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
             ),
             actions: [
               IconButton(
-                icon: const Icon(Icons.edit, color: Color(0xFF111111)),
+                icon: Icon(Icons.edit, color: textColor),
                 onPressed: () {
                   Navigator.push(
                     context,
@@ -201,7 +209,7 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                 },
               ),
               PopupMenuButton<String>(
-                icon: const Icon(Icons.more_vert, color: Color(0xFF111111)),
+                icon: Icon(Icons.more_vert, color: textColor),
                 onSelected: (val) {
                   if (val == 'delete') {
                     _confirmDeleteGoal(context, provider, goal);
@@ -231,7 +239,9 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                   children: [
                     // Overview header card
                     NeoCard(
-                      color: isGoalCompleted ? const Color(0xFF00C49A).withOpacity(0.15) : Colors.white,
+                      color: isGoalCompleted
+                          ? const Color(0xFF00C49A).withOpacity(isDark ? 0.25 : 0.15)
+                          : cardBgColor,
                       child: Column(
                         children: [
                           Row(
@@ -240,19 +250,23 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                               Container(
                                 decoration: BoxDecoration(
                                   color: const Color(0xFF4361EE).withOpacity(0.15),
-                                  border: Border.all(color: const Color(0xFF111111), width: 1.5),
+                                  border: Border.all(color: borderColor, width: 1.5),
                                 ),
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                 child: Text(
                                   _getCategoryIndonesian(goal.category),
-                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w800,
+                                    color: textColor,
+                                  ),
                                 ),
                               ),
                               Text(
                                 isGoalCompleted ? 'Tercapai! 🎉' : '$daysRemaining hari lagi',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w800,
-                                  color: isGoalCompleted ? const Color(0xFF00C49A) : const Color(0xFF111111),
+                                  color: isGoalCompleted ? const Color(0xFF00C49A) : textColor,
                                 ),
                               ),
                             ],
@@ -266,13 +280,13 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                                 width: 120,
                                 height: 120,
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: cardBgColor,
                                   shape: BoxShape.circle,
-                                  border: Border.all(color: const Color(0xFF111111), width: 4),
-                                  boxShadow: const [
+                                  border: Border.all(color: borderColor, width: 4),
+                                  boxShadow: [
                                     BoxShadow(
-                                      color: Color(0xFF111111),
-                                      offset: Offset(4, 4),
+                                      color: borderColor,
+                                      offset: const Offset(4, 4),
                                       blurRadius: 0,
                                     ),
                                   ],
@@ -308,10 +322,10 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                           const SizedBox(height: 4),
                           Text(
                             'dari target ${currencyFormatter.format(goal.targetAmount)}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
-                              color: Colors.black54,
+                              color: subtextColor,
                             ),
                           ),
                           const SizedBox(height: 12),
@@ -322,7 +336,11 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                           const SizedBox(height: 12),
                           Text(
                             '${percentage.toStringAsFixed(1)}% Terkumpul',
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                              color: textColor,
+                            ),
                           ),
                           const SizedBox(height: 12),
                           // Motivational message banner
@@ -330,7 +348,7 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                             width: double.infinity,
                             decoration: BoxDecoration(
                               color: const Color(0xFFFFE500),
-                              border: Border.all(color: const Color(0xFF111111), width: 2),
+                              border: Border.all(color: borderColor, width: 2),
                             ),
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                             child: Text(
@@ -353,12 +371,12 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                     const SizedBox(height: 24),
 
                     // Roadmap Section Title
-                    const Text(
+                    Text(
                       'Pencapaian Milestones',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF111111),
+                        color: textColor,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -375,12 +393,12 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                   ? Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text(
+                        Text(
                           'Belum ada transaksi',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF111111),
+                            color: textColor,
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -412,17 +430,17 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                             children: [
                               const Text(
                                 'SALDO SEKARANG:',
-                                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
+                                style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: Color(0xFF111111)),
                               ),
                               Text(
                                 currencyFormatter.format(currentVal),
-                                style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+                                style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: Color(0xFF111111)),
                               ),
                             ],
                           ),
                         ),
                         Container(
-                          color: const Color(0xFF111111),
+                          color: borderColor,
                           height: 2,
                         ),
                         Expanded(
@@ -459,7 +477,7 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                                   padding: const EdgeInsets.only(right: 20.0),
                                   decoration: BoxDecoration(
                                     color: const Color(0xFFFF5733),
-                                    border: Border.all(color: const Color(0xFF111111), width: 2),
+                                    border: Border.all(color: borderColor, width: 2),
                                   ),
                                   child: const Icon(
                                     Icons.delete,
@@ -472,7 +490,7 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                                 child: GestureDetector(
                                   onTap: () => _showTransactionOptions(context, provider, goal, tx),
                                   child: NeoCard(
-                                    color: Colors.white,
+                                    color: cardBgColor,
                                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                     child: Row(
                                       children: [
@@ -482,7 +500,7 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                                           height: 38,
                                           decoration: BoxDecoration(
                                             color: isDeposit ? const Color(0xFF00C49A) : const Color(0xFFFF5733),
-                                            border: Border.all(color: const Color(0xFF111111), width: 2),
+                                            border: Border.all(color: borderColor, width: 2),
                                           ),
                                           child: Icon(
                                             isDeposit ? Icons.arrow_downward : Icons.arrow_upward,
@@ -498,19 +516,19 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                                             children: [
                                               Text(
                                                 tx.note.isEmpty ? (isDeposit ? 'Deposit' : 'Penarikan') : tx.note,
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                   fontWeight: FontWeight.w800,
                                                   fontSize: 14,
-                                                  color: Color(0xFF111111),
+                                                  color: textColor,
                                                 ),
                                               ),
                                               const SizedBox(height: 2),
                                               Text(
                                                 dateFormatter.format(tx.date),
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                   fontSize: 11,
                                                   fontWeight: FontWeight.w500,
-                                                  color: Colors.black54,
+                                                  color: subtextColor,
                                                 ),
                                               ),
                                             ],
@@ -531,10 +549,10 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                                             const SizedBox(height: 2),
                                             Text(
                                               'Saldo: ${currencyFormatter.format(runningBalance)}',
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                 fontSize: 10,
                                                 fontWeight: FontWeight.w500,
-                                                color: Colors.black45,
+                                                color: subtextColorMuted,
                                               ),
                                             ),
                                           ],
@@ -557,7 +575,7 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
           floatingActionButton: FloatingActionButton(
             backgroundColor: const Color(0xFFFFE500),
             foregroundColor: const Color(0xFF111111),
-            shape: Border.all(color: const Color(0xFF111111), width: 2.5),
+            shape: Border.all(color: borderColor, width: 2.5),
             elevation: 4,
             child: const Icon(Icons.add, size: 30),
             onPressed: () {
@@ -578,14 +596,20 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
   }
 
   Widget _buildChartsTab(BuildContext context, SavingGoal goal, NumberFormat currencyFormatter) {
+    final provider = Provider.of<SavingsProvider>(context, listen: false);
+    final isDark = provider.isDarkMode;
+    final textColor = isDark ? Colors.white : const Color(0xFF111111);
+    final borderColor = isDark ? Colors.white : const Color(0xFF111111);
+    final cardBgColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+
     if (goal.transactions.isEmpty) {
-      return const Center(
+      return Center(
         child: Padding(
-          padding: EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(24.0),
           child: Text(
             'Nabung dulu untuk melihat grafik tabunganmu! 📈',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF111111)),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: textColor),
           ),
         ),
       );
@@ -620,7 +644,7 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
               color: const Color(0xFF00C49A),
               width: 18,
               borderRadius: BorderRadius.zero,
-              borderSide: const BorderSide(color: Color(0xFF111111), width: 2),
+              borderSide: BorderSide(color: borderColor, width: 2),
             ),
           ],
         ),
@@ -653,26 +677,26 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Section 1: Monthly Deposits Bar Chart
-          const Text(
+          Text(
             'Grafik Setoran Bulanan',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF111111)),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: textColor),
           ),
           const SizedBox(height: 8),
           NeoCard(
-            color: Colors.white,
+            color: cardBgColor,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
             child: SizedBox(
               height: 200,
               child: barGroups.isEmpty
-                  ? const Center(child: Text('Belum ada setoran'))
+                  ? Center(child: Text('Belum ada setoran', style: TextStyle(color: textColor)))
                   : BarChart(
                       BarChartData(
                         barGroups: barGroups,
                         gridData: const FlGridData(show: false),
                         borderData: FlBorderData(
-                          border: const Border(
-                            bottom: BorderSide(color: Color(0xFF111111), width: 2.5),
-                            left: BorderSide(color: Color(0xFF111111), width: 2.5),
+                          border: Border(
+                            bottom: BorderSide(color: borderColor, width: 2.5),
+                            left: BorderSide(color: borderColor, width: 2.5),
                           ),
                         ),
                         titlesData: FlTitlesData(
@@ -688,10 +712,10 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                                     padding: const EdgeInsets.only(top: 6.0),
                                     child: Text(
                                       monthlyKeys[idx],
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 9,
                                         fontWeight: FontWeight.w800,
-                                        color: Color(0xFF111111),
+                                        color: textColor,
                                       ),
                                     ),
                                   );
@@ -715,10 +739,10 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                                 }
                                 return Text(
                                   label,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 8,
                                     fontWeight: FontWeight.w800,
-                                    color: Color(0xFF111111),
+                                    color: textColor,
                                   ),
                                 );
                               },
@@ -732,13 +756,13 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
           const SizedBox(height: 24),
 
           // Section 2: Cumulative Line Chart
-          const Text(
+          Text(
             'Kurva Pertumbuhan & Target',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF111111)),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: textColor),
           ),
           const SizedBox(height: 8),
           NeoCard(
-            color: Colors.white,
+            color: cardBgColor,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 20),
             child: SizedBox(
               height: 220,
@@ -750,14 +774,14 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                     show: true,
                     drawVerticalLine: false,
                     getDrawingHorizontalLine: (value) => FlLine(
-                      color: Colors.grey.shade300,
+                      color: isDark ? Colors.grey.shade800 : Colors.grey.shade300,
                       strokeWidth: 1,
                     ),
                   ),
                   borderData: FlBorderData(
-                    border: const Border(
-                      bottom: BorderSide(color: Color(0xFF111111), width: 2.5),
-                      left: BorderSide(color: Color(0xFF111111), width: 2.5),
+                    border: Border(
+                      bottom: BorderSide(color: borderColor, width: 2.5),
+                      left: BorderSide(color: borderColor, width: 2.5),
                     ),
                   ),
                   lineTouchData: const LineTouchData(enabled: true),
@@ -769,8 +793,8 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                         showTitles: true,
                         getTitlesWidget: (double val, TitleMeta meta) {
                           final idx = val.toInt();
-                          if (idx == 0) return const Text('Mulai', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w800));
-                          if (idx == cumulativeSpots.length - 1) return const Text('Kini', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w800));
+                          if (idx == 0) return Text('Mulai', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w800, color: textColor));
+                          if (idx == cumulativeSpots.length - 1) return Text('Kini', style: TextStyle(fontSize: 8, fontWeight: FontWeight.w800, color: textColor));
                           return const SizedBox();
                         },
                       ),
@@ -789,10 +813,10 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                           }
                           return Text(
                             label,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 8,
                               fontWeight: FontWeight.w800,
-                              color: Color(0xFF111111),
+                              color: textColor,
                             ),
                           );
                         },

@@ -20,6 +20,10 @@ class YokNabungApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Provider.of<SavingsProvider>(context).isDarkMode;
+    final scaffoldBgColor = isDark ? const Color(0xFF121212) : const Color(0xFFFFFDE7);
+    final textColor = isDark ? Colors.white : const Color(0xFF111111);
+
     return MaterialApp(
       title: 'YokNabung',
       debugShowCheckedModeBanner: false,
@@ -37,32 +41,33 @@ class YokNabungApp extends StatelessWidget {
 
       // Neo-Brutalist Theme Styling
       theme: ThemeData(
-        scaffoldBackgroundColor: const Color(0xFFFFFDE7), // Warm cream background
+        brightness: isDark ? Brightness.dark : Brightness.light,
+        scaffoldBackgroundColor: scaffoldBgColor,
         fontFamily: GoogleFonts.spaceGrotesk().fontFamily,
         textTheme: TextTheme(
-          displayLarge: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w800, color: const Color(0xFF111111)),
-          displayMedium: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w800, color: const Color(0xFF111111)),
-          displaySmall: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w800, color: const Color(0xFF111111)),
-          headlineLarge: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w800, color: const Color(0xFF111111)),
-          headlineMedium: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w800, color: const Color(0xFF111111)),
-          headlineSmall: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w800, color: const Color(0xFF111111)),
-          titleLarge: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w800, fontSize: 18, color: const Color(0xFF111111)),
-          titleMedium: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w800, fontSize: 16, color: const Color(0xFF111111)),
-          titleSmall: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w800, fontSize: 14, color: const Color(0xFF111111)),
-          bodyLarge: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w500, color: const Color(0xFF111111)),
-          bodyMedium: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w500, color: const Color(0xFF111111)),
-          bodySmall: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w500, color: const Color(0xFF111111)),
-          labelLarge: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w800, color: const Color(0xFF111111)),
-          labelMedium: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w800, color: const Color(0xFF111111)),
-          labelSmall: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w800, color: const Color(0xFF111111)),
+          displayLarge: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w800, color: textColor),
+          displayMedium: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w800, color: textColor),
+          displaySmall: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w800, color: textColor),
+          headlineLarge: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w800, color: textColor),
+          headlineMedium: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w800, color: textColor),
+          headlineSmall: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w800, color: textColor),
+          titleLarge: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w800, fontSize: 18, color: textColor),
+          titleMedium: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w800, fontSize: 16, color: textColor),
+          titleSmall: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w800, fontSize: 14, color: textColor),
+          bodyLarge: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w500, color: textColor),
+          bodyMedium: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w500, color: textColor),
+          bodySmall: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w500, color: textColor),
+          labelLarge: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w800, color: textColor),
+          labelMedium: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w800, color: textColor),
+          labelSmall: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w800, color: textColor),
         ),
         
         // Remove material shadows
         shadowColor: Colors.transparent,
-        appBarTheme: const AppBarTheme(
-          color: Color(0xFFFFFDE7),
+        appBarTheme: AppBarTheme(
+          color: scaffoldBgColor,
           elevation: 0,
-          iconTheme: IconThemeData(color: Color(0xFF111111)),
+          iconTheme: IconThemeData(color: textColor),
         ),
       ),
       home: const HomeScreen(),

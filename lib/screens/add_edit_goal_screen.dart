@@ -231,6 +231,14 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
     final bool isEdit = widget.existingGoal != null;
     final DateFormat df = DateFormat('dd MMMM yyyy', 'id_ID');
 
+    final provider = Provider.of<SavingsProvider>(context);
+    final isDark = provider.isDarkMode;
+    final textColor = isDark ? Colors.white : const Color(0xFF111111);
+    final borderColor = isDark ? Colors.white : const Color(0xFF111111);
+    final cardBgColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+    final subtextColor = isDark ? Colors.white70 : Colors.black54;
+    final hintColor = isDark ? Colors.white30 : Colors.black38;
+
     // Create a temporary goal for live preview
     final previewGoal = SavingGoal(
       id: widget.existingGoal?.id ?? 'preview',
@@ -246,16 +254,16 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
     );
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFFFDE7),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFFFDE7),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         centerTitle: true,
-        iconTheme: const IconThemeData(color: Color(0xFF111111)),
+        iconTheme: IconThemeData(color: textColor),
         title: Text(
           isEdit ? 'Edit Goal' : 'Tambah Goal Baru',
-          style: const TextStyle(
-            color: Color(0xFF111111),
+          style: TextStyle(
+            color: textColor,
             fontSize: 18,
             fontWeight: FontWeight.w800,
           ),
@@ -263,7 +271,7 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(2.5),
           child: Container(
-            color: const Color(0xFF111111),
+            color: borderColor,
             height: 2.5,
           ),
         ),
@@ -277,13 +285,13 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Emoji Selector
-              const Text(
+              Text(
                 'Pilih Emoji',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF111111)),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textColor),
               ),
               const SizedBox(height: 8),
               NeoCard(
-                color: Colors.white,
+                color: cardBgColor,
                 padding: const EdgeInsets.all(8),
                 child: Wrap(
                   alignment: WrapAlignment.center,
@@ -301,13 +309,13 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
                         width: 44,
                         height: 44,
                         decoration: BoxDecoration(
-                          color: isSelected ? const Color(0xFFFFE500) : Colors.white,
+                          color: isSelected ? const Color(0xFFFFE500) : cardBgColor,
                           border: Border.all(
-                            color: const Color(0xFF111111),
+                            color: borderColor,
                             width: isSelected ? 2.5 : 1.5,
                           ),
                           boxShadow: isSelected
-                              ? const [BoxShadow(color: Color(0xFF111111), offset: Offset(2, 2))]
+                              ? [BoxShadow(color: borderColor, offset: const Offset(2, 2))]
                               : null,
                         ),
                         child: Center(
@@ -324,15 +332,15 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
               const SizedBox(height: 20),
 
               // Title Field
-              const Text(
+              Text(
                 'Nama Goal Tabungan',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF111111)),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textColor),
               ),
               const SizedBox(height: 8),
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(color: const Color(0xFF111111), width: 2.5),
+                  color: cardBgColor,
+                  border: Border.all(color: borderColor, width: 2.5),
                 ),
                 child: TextFormField(
                   controller: _titleController,
@@ -342,22 +350,22 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
                     }
                     return null;
                   },
-                  style: const TextStyle(fontWeight: FontWeight.w500, color: Color(0xFF111111)),
-                  decoration: const InputDecoration(
+                  style: TextStyle(fontWeight: FontWeight.w500, color: textColor),
+                  decoration: InputDecoration(
                     hintText: 'Misal: Laptop Baru, Liburan Bali',
-                    hintStyle: TextStyle(color: Colors.black38),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    hintStyle: TextStyle(color: hintColor),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     border: InputBorder.none,
-                    errorStyle: TextStyle(fontWeight: FontWeight.w800, color: Color(0xFFFF5733)),
+                    errorStyle: const TextStyle(fontWeight: FontWeight.w800, color: Color(0xFFFF5733)),
                   ),
                 ),
               ),
               const SizedBox(height: 20),
 
               // Category Selector (Chips)
-              const Text(
+              Text(
                 'Pilih Kategori',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF111111)),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textColor),
               ),
               const SizedBox(height: 8),
               Wrap(
@@ -373,11 +381,11 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
                     },
                     child: Container(
                       decoration: BoxDecoration(
-                        color: isSelected ? const Color(0xFF4361EE) : Colors.white,
-                        border: Border.all(color: const Color(0xFF111111), width: 2),
+                        color: isSelected ? const Color(0xFF4361EE) : cardBgColor,
+                        border: Border.all(color: borderColor, width: 2),
                         boxShadow: isSelected
-                            ? const [BoxShadow(color: Color(0xFF111111), offset: Offset(2, 2))]
-                            : const [BoxShadow(color: Color(0xFF111111), offset: Offset(1, 1))],
+                            ? [BoxShadow(color: borderColor, offset: const Offset(2, 2))]
+                            : [BoxShadow(color: borderColor, offset: const Offset(1, 1))],
                       ),
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       child: Text(
@@ -385,7 +393,7 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w800,
-                          color: isSelected ? Colors.white : const Color(0xFF111111),
+                          color: isSelected ? Colors.white : textColor,
                         ),
                       ),
                     ),
@@ -395,15 +403,15 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
               const SizedBox(height: 20),
 
               // Target Amount
-              const Text(
+              Text(
                 'Target Jumlah Tabungan (Rp)',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF111111)),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textColor),
               ),
               const SizedBox(height: 8),
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(color: const Color(0xFF111111), width: 2.5),
+                  color: cardBgColor,
+                  border: Border.all(color: borderColor, width: 2.5),
                 ),
                 child: TextFormField(
                   controller: _amountController,
@@ -417,8 +425,8 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
                     }
                     return null;
                   },
-                  style: const TextStyle(fontWeight: FontWeight.w500, color: Color(0xFF111111)),
-                  decoration: const InputDecoration(
+                  style: TextStyle(fontWeight: FontWeight.w500, color: textColor),
+                  decoration: InputDecoration(
                     hintText: 'Misal: 10000000',
                     hintStyle: TextStyle(color: Colors.black38),
                     contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -430,9 +438,9 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
               const SizedBox(height: 20),
 
               // Method Switcher (Manual / Prediction)
-              const Text(
+              Text(
                 'Metode Target Selesai',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF111111)),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textColor),
               ),
               const SizedBox(height: 8),
               Row(
@@ -446,17 +454,17 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
                       },
                       child: Container(
                         decoration: BoxDecoration(
-                          color: !_useDailyPrediction ? const Color(0xFFFFE500) : Colors.white,
-                          border: Border.all(color: const Color(0xFF111111), width: 2),
+                          color: !_useDailyPrediction ? const Color(0xFFFFE500) : cardBgColor,
+                          border: Border.all(color: borderColor, width: 2),
                           boxShadow: !_useDailyPrediction
-                              ? const [BoxShadow(color: Color(0xFF111111), offset: Offset(2, 2))]
-                              : const [BoxShadow(color: Color(0xFF111111), offset: Offset(1, 1))],
+                              ? [BoxShadow(color: borderColor, offset: const Offset(2, 2))]
+                              : [BoxShadow(color: borderColor, offset: const Offset(1, 1))],
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 10),
-                        child: const Center(
+                        child: Center(
                           child: Text(
                             'MANUAL TANGGAL',
-                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF111111)),
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: !_useDailyPrediction ? const Color(0xFF111111) : textColor),
                           ),
                         ),
                       ),
@@ -473,17 +481,17 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
                       },
                       child: Container(
                         decoration: BoxDecoration(
-                          color: _useDailyPrediction ? const Color(0xFFFFE500) : Colors.white,
-                          border: Border.all(color: const Color(0xFF111111), width: 2),
+                          color: _useDailyPrediction ? const Color(0xFFFFE500) : cardBgColor,
+                          border: Border.all(color: borderColor, width: 2),
                           boxShadow: _useDailyPrediction
-                              ? const [BoxShadow(color: Color(0xFF111111), offset: Offset(2, 2))]
-                              : const [BoxShadow(color: Color(0xFF111111), offset: Offset(1, 1))],
+                              ? [BoxShadow(color: borderColor, offset: const Offset(2, 2))]
+                              : [BoxShadow(color: borderColor, offset: const Offset(1, 1))],
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 10),
-                        child: const Center(
+                        child: Center(
                           child: Text(
                             'PREDIKSI HARIAN',
-                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF111111)),
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: _useDailyPrediction ? const Color(0xFF111111) : textColor),
                           ),
                         ),
                       ),
@@ -495,15 +503,15 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
 
               // Daily Savings input field when Prediction mode is active
               if (_useDailyPrediction) ...[
-                const Text(
+                Text(
                   'Nominal Tabungan Harian (Rp/hari)',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF111111)),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textColor),
                 ),
                 const SizedBox(height: 8),
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(color: const Color(0xFF111111), width: 2.5),
+                    color: cardBgColor,
+                    border: Border.all(color: borderColor, width: 2.5),
                   ),
                   child: TextFormField(
                     controller: _dailySavingsController,
@@ -519,13 +527,13 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
                       }
                       return null;
                     },
-                    style: const TextStyle(fontWeight: FontWeight.w500, color: Color(0xFF111111)),
-                    decoration: const InputDecoration(
+                    style: TextStyle(fontWeight: FontWeight.w500, color: textColor),
+                    decoration: InputDecoration(
                       hintText: 'Misal: 50000',
-                      hintStyle: TextStyle(color: Colors.black38),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      hintStyle: TextStyle(color: hintColor),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       border: InputBorder.none,
-                      errorStyle: TextStyle(fontWeight: FontWeight.w800, color: Color(0xFFFF5733)),
+                      errorStyle: const TextStyle(fontWeight: FontWeight.w800, color: Color(0xFFFF5733)),
                     ),
                   ),
                 ),
@@ -549,16 +557,16 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
                             },
                             child: Container(
                               decoration: BoxDecoration(
-                                color: const Color(0xFF00C49A).withOpacity(0.1),
-                                border: Border.all(color: const Color(0xFF111111), width: 1.5),
+                                color: const Color(0xFF00C49A).withOpacity(0.15),
+                                border: Border.all(color: borderColor, width: 1.5),
                               ),
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
                               child: Text(
                                 '🎯 Gunakan rata-rata riwayat: ${currencyFormatter.format(avgDaily)}/hari',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w800,
-                                  color: Color(0xFF111111),
+                                  color: textColor,
                                 ),
                               ),
                             ),
@@ -579,18 +587,18 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Tanggal Mulai',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF111111)),
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textColor),
                         ),
                         const SizedBox(height: 8),
                         GestureDetector(
                           onTap: () => _selectDate(context, true),
                           child: Container(
                             decoration: BoxDecoration(
-                              color: Colors.white,
-                              border: Border.all(color: const Color(0xFF111111), width: 2),
-                              boxShadow: const [BoxShadow(color: Color(0xFF111111), offset: Offset(2, 2))],
+                              color: cardBgColor,
+                              border: Border.all(color: borderColor, width: 2),
+                              boxShadow: [BoxShadow(color: borderColor, offset: const Offset(2, 2))],
                             ),
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                             child: Row(
@@ -599,10 +607,10 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
                                 Expanded(
                                   child: Text(
                                     df.format(_startDate),
-                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+                                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: textColor),
                                   ),
                                 ),
-                                const Icon(Icons.calendar_today, size: 16),
+                                Icon(Icons.calendar_today, size: 16, color: textColor),
                               ],
                             ),
                           ),
@@ -615,20 +623,20 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Target Selesai',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF111111)),
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textColor),
                         ),
                         const SizedBox(height: 8),
                         GestureDetector(
                           onTap: _useDailyPrediction ? null : () => _selectDate(context, false),
                           child: Container(
                             decoration: BoxDecoration(
-                              color: _useDailyPrediction ? Colors.grey.shade200 : Colors.white,
-                              border: Border.all(color: const Color(0xFF111111), width: 2),
+                              color: _useDailyPrediction ? (isDark ? Colors.grey.shade800 : Colors.grey.shade200) : cardBgColor,
+                              border: Border.all(color: borderColor, width: 2),
                               boxShadow: _useDailyPrediction
                                   ? null
-                                  : const [BoxShadow(color: Color(0xFF111111), offset: Offset(2, 2))],
+                                  : [BoxShadow(color: borderColor, offset: const Offset(2, 2))],
                             ),
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                             child: Row(
@@ -640,14 +648,14 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w800,
-                                      color: _useDailyPrediction ? Colors.black54 : const Color(0xFF111111),
+                                      color: _useDailyPrediction ? (isDark ? Colors.white38 : Colors.black54) : textColor,
                                     ),
                                   ),
                                 ),
                                 Icon(
                                   Icons.calendar_today,
                                   size: 16,
-                                  color: _useDailyPrediction ? Colors.black38 : const Color(0xFF111111),
+                                  color: _useDailyPrediction ? (isDark ? Colors.white30 : Colors.black38) : textColor,
                                 ),
                               ],
                             ),
@@ -661,24 +669,24 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
               const SizedBox(height: 20),
 
               // Notes field
-              const Text(
+              Text(
                 'Catatan Tambahan (Opsional)',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF111111)),
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textColor),
               ),
               const SizedBox(height: 8),
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(color: const Color(0xFF111111), width: 2.5),
+                  color: cardBgColor,
+                  border: Border.all(color: borderColor, width: 2.5),
                 ),
                 child: TextFormField(
                   controller: _notesController,
                   maxLines: 2,
-                  style: const TextStyle(fontWeight: FontWeight.w500, color: Color(0xFF111111)),
-                  decoration: const InputDecoration(
+                  style: TextStyle(fontWeight: FontWeight.w500, color: textColor),
+                  decoration: InputDecoration(
                     hintText: 'Tulis keterangan atau motivasi di sini...',
-                    hintStyle: TextStyle(color: Colors.black38),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    hintStyle: TextStyle(color: hintColor),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     border: InputBorder.none,
                   ),
                 ),
@@ -686,9 +694,9 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
               const SizedBox(height: 28),
 
               // Savings Calculator Live Preview
-              const Text(
+              Text(
                 'Live Kalkulasi & Proyeksi',
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF111111)),
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: textColor),
               ),
               const SizedBox(height: 10),
               SavingsCalculatorWidget(goal: previewGoal),

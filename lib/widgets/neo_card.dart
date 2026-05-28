@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/savings_provider.dart';
 
 class NeoCard extends StatelessWidget {
   final Widget child;
@@ -20,17 +22,21 @@ class NeoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Provider.of<SavingsProvider>(context).isDarkMode;
+    final borderColor = isDark ? Colors.white : const Color(0xff111111);
+    final shadowColor = isDark ? Colors.black : const Color(0xff111111);
+
     return Container(
       margin: margin,
       decoration: BoxDecoration(
         color: color,
         border: Border.all(
-          color: const Color(0xff111111),
+          color: borderColor,
           width: borderWidth,
         ),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xff111111),
+            color: shadowColor,
             offset: Offset(shadowOffset, shadowOffset),
             blurRadius: 0,
           ),
