@@ -6,6 +6,20 @@ Aplikasi ini menggunakan **Provider** untuk manajemen status (*state management*
 
 ---
 
+## 📱 Download Aplikasi (Android)
+
+Kamu dapat mengunduh aplikasi **YokNabung** langsung ke HP Android kamu melalui halaman **Releases** di GitHub ini:
+
+👉 **[Unduh YokNabung APK Terbaru](https://github.com/abday-wong/yoknabung/releases)**
+
+### Cara Instalasi di Handphone:
+1. Buka link di atas dari HP kamu, lalu unduh file berkode **`app-release.apk`** di bagian bawah versi rilis terbaru.
+2. Setelah unduhan selesai, ketuk file APK tersebut untuk memulai proses instalasi.
+3. Jika HP kamu menampilkan peringatan keamanan tentang instalasi dari sumber tidak dikenal (*Install Unknown Apps*), berikan izin (*Allow/Izinkan*) pada browser atau file manager kamu untuk melanjutkan.
+4. Aplikasi akan terinstal, dan kamu bisa langsung mulai membuat target tabunganmu!
+
+---
+
 ## 🎨 Karakteristik Desain (Neo-Brutalisme)
 Semua komponen antarmuka didesain mengikuti panduan visual Neo-Brutalist yang ketat:
 *   **Warna Latar**: Warm Cream (`#FFFDE7`).
