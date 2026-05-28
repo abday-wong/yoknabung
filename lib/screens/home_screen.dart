@@ -283,93 +283,98 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 20),
 
           // Summary Card Row
-          NeoCard(
-            color: const Color(0xFF4361EE).withOpacity(0.1),
-            child: Row(
-              children: [
-                Expanded(
+          Row(
+            children: [
+              Expanded(
+                child: NeoCard(
+                  color: const Color(0xFFFFE500), // Yellow
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
                   child: Column(
                     children: [
                       const Text(
                         'TOTAL GOAL',
                         style: TextStyle(
-                          fontSize: 10,
+                          fontSize: 9,
                           fontWeight: FontWeight.w800,
-                          color: Colors.black54,
+                          color: Color(0xFF111111),
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Text(
                         '${goals.length}',
                         style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
                           color: Color(0xFF111111),
                         ),
                       ),
                     ],
                   ),
                 ),
-                Container(
-                  width: 2.5,
-                  height: 40,
-                  color: const Color(0xFF111111),
-                ),
-                Expanded(
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: NeoCard(
+                  color: const Color(0xFF00C49A), // Green
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
                   child: Column(
                     children: [
                       const Text(
-                        'TOTAL TERKUMPUL',
+                        'TERKUMPUL',
                         style: TextStyle(
-                          fontSize: 10,
+                          fontSize: 9,
                           fontWeight: FontWeight.w800,
-                          color: Colors.black54,
+                          color: Color(0xFF111111),
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Text(
                         currencyFormatter.format(totalSaved),
                         textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF00C49A),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF111111),
                         ),
                       ),
                     ],
                   ),
                 ),
-                Container(
-                  width: 2.5,
-                  height: 40,
-                  color: const Color(0xFF111111),
-                ),
-                Expanded(
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: NeoCard(
+                  color: const Color(0xFFFF5733), // Red-orange
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
                   child: Column(
                     children: [
                       const Text(
                         'SISA TARGET',
                         style: TextStyle(
-                          fontSize: 10,
+                          fontSize: 9,
                           fontWeight: FontWeight.w800,
-                          color: Colors.black54,
+                          color: Color(0xFF111111),
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Text(
                         currencyFormatter.format(totalRemaining),
                         textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFFFF5733),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF111111),
                         ),
                       ),
                     ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
           const SizedBox(height: 24),
 
