@@ -32,6 +32,10 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
   late DateTime _targetDate;
   String? _notes;
 
+  bool _useDailyPrediction = false;
+  double _plannedDailySavings = 0.0;
+  late TextEditingController _dailySavingsController;
+
   final List<String> _emojis = ['📱', '🏖️', '🚗', '🎓', '🏠', '💰', '💻', '✈️', '🎁', '🎮', '🍕', '💪'];
   final List<Map<String, String>> _categories = [
     {'value': 'vacation', 'label': 'Liburan'},
@@ -65,6 +69,17 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
     _targetDate = goal?.targetDate ?? DateTime.now().add(const Duration(days: 30));
     _notes = goal?.notes;
 
+    double initialDailySavings = 0.0;
+    if (goal != null) {
+      int totalDays = goal.targetDate.difference(goal.startDate).inDays;
+      if (totalDays <= 0) totalDays = 1;
+      initialDailySavings = goal.targetAmount / totalDays;
+    }
+    _dailySavingsController = TextEditingController(
+      text: initialDailySavings > 0 ? initialDailySavings.toInt().toString() : '',
+    );
+    _plannedDailySavings = initialDailySavings;
+
     // Listen to changes to rebuild live preview
     _titleController.addListener(() {
       setState(() {
@@ -74,6 +89,9 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
     _amountController.addListener(() {
       setState(() {
         _targetAmount = double.tryParse(_amountController.text) ?? 0.0;
+        if (_useDailyPrediction) {
+          _updatePredictedTargetDate();
+        }
       });
     });
     _notesController.addListener(() {
@@ -81,6 +99,23 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
         _notes = _notesController.text;
       });
     });
+    _dailySavingsController.addListener(() {
+      setState(() {
+        _plannedDailySavings = double.tryParse(_dailySavingsController.text) ?? 0.0;
+        if (_useDailyPrediction) {
+          _updatePredictedTargetDate();
+        }
+      });
+    });
+  }
+
+  void _updatePredictedTargetDate() {
+    if (_targetAmount > 0 && _plannedDailySavings > 0) {
+      final daysNeeded = (_targetAmount / _plannedDailySavings).ceil();
+      if (daysNeeded > 0 && daysNeeded < 365 * 100) {
+        _targetDate = _startDate.add(Duration(days: daysNeeded));
+      }
+    }
   }
 
   @override
@@ -88,6 +123,7 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
     _titleController.dispose();
     _amountController.dispose();
     _notesController.dispose();
+    _dailySavingsController.dispose();
     super.dispose();
   }
 
@@ -126,8 +162,12 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
       setState(() {
         if (isStart) {
           _startDate = picked;
-          if (_targetDate.isBefore(_startDate)) {
-            _targetDate = _startDate.add(const Duration(days: 1));
+          if (_useDailyPrediction) {
+            _updatePredictedTargetDate();
+          } else {
+            if (_targetDate.isBefore(_startDate)) {
+              _targetDate = _startDate.add(const Duration(days: 1));
+            }
           }
         } else {
           _targetDate = picked;
@@ -389,6 +429,149 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
               ),
               const SizedBox(height: 20),
 
+              // Method Switcher (Manual / Prediction)
+              const Text(
+                'Metode Target Selesai',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF111111)),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _useDailyPrediction = false;
+                        });
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: !_useDailyPrediction ? const Color(0xFFFFE500) : Colors.white,
+                          border: Border.all(color: const Color(0xFF111111), width: 2),
+                          boxShadow: !_useDailyPrediction
+                              ? const [BoxShadow(color: Color(0xFF111111), offset: Offset(2, 2))]
+                              : const [BoxShadow(color: Color(0xFF111111), offset: Offset(1, 1))],
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        child: const Center(
+                          child: Text(
+                            'MANUAL TANGGAL',
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF111111)),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _useDailyPrediction = true;
+                          _updatePredictedTargetDate();
+                        });
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: _useDailyPrediction ? const Color(0xFFFFE500) : Colors.white,
+                          border: Border.all(color: const Color(0xFF111111), width: 2),
+                          boxShadow: _useDailyPrediction
+                              ? const [BoxShadow(color: Color(0xFF111111), offset: Offset(2, 2))]
+                              : const [BoxShadow(color: Color(0xFF111111), offset: Offset(1, 1))],
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        child: const Center(
+                          child: Text(
+                            'PREDIKSI HARIAN',
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF111111)),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              // Daily Savings input field when Prediction mode is active
+              if (_useDailyPrediction) ...[
+                const Text(
+                  'Nominal Tabungan Harian (Rp/hari)',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Color(0xFF111111)),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: const Color(0xFF111111), width: 2.5),
+                  ),
+                  child: TextFormField(
+                    controller: _dailySavingsController,
+                    keyboardType: TextInputType.number,
+                    validator: (val) {
+                      if (_useDailyPrediction) {
+                        if (val == null || val.trim().isEmpty) {
+                          return 'Nominal tabungan harian tidak boleh kosong';
+                        }
+                        if (double.tryParse(val) == null || double.parse(val) <= 0) {
+                          return 'Masukkan nominal yang valid (> 0)';
+                        }
+                      }
+                      return null;
+                    },
+                    style: const TextStyle(fontWeight: FontWeight.w500, color: Color(0xFF111111)),
+                    decoration: const InputDecoration(
+                      hintText: 'Misal: 50000',
+                      hintStyle: TextStyle(color: Colors.black38),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      border: InputBorder.none,
+                      errorStyle: TextStyle(fontWeight: FontWeight.w800, color: Color(0xFFFF5733)),
+                    ),
+                  ),
+                ),
+                if (widget.existingGoal != null) ...[
+                  const SizedBox(height: 8),
+                  Builder(
+                    builder: (context) {
+                      final provider = Provider.of<SavingsProvider>(context, listen: false);
+                      final avgDaily = provider.getAverageDailyDeposit(widget.existingGoal!);
+                      if (avgDaily > 0) {
+                        final currencyFormatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+                        return Align(
+                          alignment: Alignment.centerLeft,
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _dailySavingsController.text = avgDaily.toInt().toString();
+                                _plannedDailySavings = avgDaily;
+                                _updatePredictedTargetDate();
+                              });
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF00C49A).withOpacity(0.1),
+                                border: Border.all(color: const Color(0xFF111111), width: 1.5),
+                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                              child: Text(
+                                '🎯 Gunakan rata-rata riwayat: ${currencyFormatter.format(avgDaily)}/hari',
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w800,
+                                  color: Color(0xFF111111),
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }
+                      return const SizedBox();
+                    },
+                  ),
+                ],
+                const SizedBox(height: 20),
+              ],
+
               // Dates Selection (Start / Target)
               Row(
                 children: [
@@ -438,12 +621,14 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
                         ),
                         const SizedBox(height: 8),
                         GestureDetector(
-                          onTap: () => _selectDate(context, false),
+                          onTap: _useDailyPrediction ? null : () => _selectDate(context, false),
                           child: Container(
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: _useDailyPrediction ? Colors.grey.shade200 : Colors.white,
                               border: Border.all(color: const Color(0xFF111111), width: 2),
-                              boxShadow: const [BoxShadow(color: Color(0xFF111111), offset: Offset(2, 2))],
+                              boxShadow: _useDailyPrediction
+                                  ? null
+                                  : const [BoxShadow(color: Color(0xFF111111), offset: Offset(2, 2))],
                             ),
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                             child: Row(
@@ -452,10 +637,18 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
                                 Expanded(
                                   child: Text(
                                     df.format(_targetDate),
-                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w800,
+                                      color: _useDailyPrediction ? Colors.black54 : const Color(0xFF111111),
+                                    ),
                                   ),
                                 ),
-                                const Icon(Icons.calendar_today, size: 16),
+                                Icon(
+                                  Icons.calendar_today,
+                                  size: 16,
+                                  color: _useDailyPrediction ? Colors.black38 : const Color(0xFF111111),
+                                ),
                               ],
                             ),
                           ),
