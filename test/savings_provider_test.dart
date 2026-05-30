@@ -210,5 +210,71 @@ void main() {
       expect(fromJson.note, 'Setoran dengan bukti');
       expect(fromJson.type, TransactionType.deposit);
     });
+
+    test('getGlobalStreak and getGlobalLevel calculations work correctly', () {
+      // Clear sample goals
+      for (var g in List.from(provider.goals)) {
+        provider.deleteGoal(g.id);
+      }
+
+      final now = DateTime.now();
+      final goal = SavingGoal(
+        id: 'test_g',
+        title: 'Goal',
+        emoji: '🎯',
+        targetAmount: 100000,
+        startDate: now.subtract(const Duration(days: 10)),
+        targetDate: now.add(const Duration(days: 10)),
+        category: 'other',
+        milestones: [],
+        transactions: [],
+      );
+      
+      provider.addGoal(goal);
+      
+      expect(provider.getGlobalStreak(), 0);
+      expect(provider.getGlobalLevel(), 1);
+      expect(provider.getLevelTitle(1), 'Penabung Pemula');
+
+      final txToday = Transaction(
+        id: 'tx_today',
+        amount: 10000,
+        date: now,
+        note: 'Hari ini',
+        type: TransactionType.deposit,
+      );
+      provider.addTransaction('test_g', txToday);
+
+      expect(provider.getGlobalStreak(), 1);
+      expect(provider.getGlobalLevel(), 1);
+
+      final txYesterday = Transaction(
+        id: 'tx_yesterday',
+        amount: 10000,
+        date: now.subtract(const Duration(days: 1)),
+        note: 'Kemarin',
+        type: TransactionType.deposit,
+      );
+      provider.addTransaction('test_g', txYesterday);
+
+      expect(provider.getGlobalStreak(), 2);
+
+      for (int i = 0; i < 3; i++) {
+        provider.addTransaction(
+          'test_g',
+          Transaction(
+            id: 'tx_extra_$i',
+            amount: 5000,
+            date: now.subtract(Duration(days: i + 2)),
+            note: 'Extra',
+            type: TransactionType.deposit,
+          ),
+        );
+      }
+
+      expect(provider.getGlobalStreak(), 5);
+      expect(provider.getGlobalLevel(), 2);
+      expect(provider.getLevelTitle(2), 'Pejuang Celengan');
+    });
   });
 }

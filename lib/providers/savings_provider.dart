@@ -73,23 +73,87 @@ class SavingsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void addTransaction(String goalId, Transaction tx) {
+  int getGlobalStreak() {
+    final List<Transaction> allDeposits = [];
+    for (var goal in _goals) {
+      allDeposits.addAll(
+        goal.transactions.where((t) => t.type == TransactionType.deposit),
+      );
+    }
+    if (allDeposits.isEmpty) return 0;
+
+    final Set<DateTime> uniqueDates = allDeposits
+        .map((t) => DateTime(t.date.year, t.date.month, t.date.day))
+        .toSet();
+
+    final today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    final yesterday = today.subtract(const Duration(days: 1));
+
+    if (!uniqueDates.contains(today) && !uniqueDates.contains(yesterday)) {
+      return 0;
+    }
+
+    DateTime currentCheckDate = uniqueDates.contains(today) ? today : yesterday;
+    int streak = 0;
+
+    while (uniqueDates.contains(currentCheckDate)) {
+      streak++;
+      currentCheckDate = currentCheckDate.subtract(const Duration(days: 1));
+    }
+
+    return streak;
+  }
+
+  int getGlobalLevel() {
+    final int totalDeposits = _goals.fold(0, (sum, goal) {
+      return sum + goal.transactions.where((t) => t.type == TransactionType.deposit).length;
+    });
+    return (totalDeposits / 5).floor() + 1;
+  }
+
+  String getLevelTitle(int level) {
+    if (level <= 1) return "Penabung Pemula";
+    if (level == 2) return "Pejuang Celengan";
+    if (level == 3) return "Ksatria Hemat";
+    if (level == 4) return "Master Anggaran";
+    return "Sultan Konsisten";
+  }
+
+  double? addTransaction(String goalId, Transaction tx) {
     final index = _goals.indexWhere((g) => g.id == goalId);
     if (index != -1) {
       final goal = _goals[index];
+      final previousMilestones = goal.milestones.map((m) => m.isReached).toList();
+
       final updatedTxList = List<Transaction>.from(goal.transactions)..add(tx);
       final updatedGoal = goal.copyWith(transactions: updatedTxList);
       _goals[index] = updatedGoal;
       checkAndUpdateMilestones(updatedGoal);
       saveToPrefs();
       notifyListeners();
+
+      double? highestNewlyReached;
+      final newGoal = _goals[index];
+      for (int i = 0; i < newGoal.milestones.length; i++) {
+        final wasReached = previousMilestones[i];
+        final isReached = newGoal.milestones[i].isReached;
+        if (isReached && !wasReached) {
+          if (highestNewlyReached == null || newGoal.milestones[i].percentage > highestNewlyReached) {
+            highestNewlyReached = newGoal.milestones[i].percentage;
+          }
+        }
+      }
+      return highestNewlyReached;
     }
+    return null;
   }
 
-  void updateTransaction(String goalId, Transaction updatedTx) {
+  double? updateTransaction(String goalId, Transaction updatedTx) {
     final index = _goals.indexWhere((g) => g.id == goalId);
     if (index != -1) {
       final goal = _goals[index];
+      final previousMilestones = goal.milestones.map((m) => m.isReached).toList();
+
       final txIndex = goal.transactions.indexWhere((t) => t.id == updatedTx.id);
       if (txIndex != -1) {
         final updatedTxList = List<Transaction>.from(goal.transactions);
@@ -99,8 +163,22 @@ class SavingsProvider with ChangeNotifier {
         checkAndUpdateMilestones(updatedGoal);
         saveToPrefs();
         notifyListeners();
+
+        double? highestNewlyReached;
+        final newGoal = _goals[index];
+        for (int i = 0; i < newGoal.milestones.length; i++) {
+          final wasReached = previousMilestones[i];
+          final isReached = newGoal.milestones[i].isReached;
+          if (isReached && !wasReached) {
+            if (highestNewlyReached == null || newGoal.milestones[i].percentage > highestNewlyReached) {
+              highestNewlyReached = newGoal.milestones[i].percentage;
+            }
+          }
+        }
+        return highestNewlyReached;
       }
     }
+    return null;
   }
 
   void deleteTransaction(String goalId, String txId) {

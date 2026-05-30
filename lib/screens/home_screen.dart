@@ -668,6 +668,120 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
+          const SizedBox(height: 16),
+          NeoCard(
+            color: isDark ? const Color(0xFF2E2E2E) : Colors.white,
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFF9F1C),
+                    border: Border.all(color: borderColor, width: 2.5),
+                  ),
+                  child: Row(
+                    children: [
+                      const Text(
+                        '🔥',
+                        style: TextStyle(fontSize: 28),
+                      ),
+                      const SizedBox(width: 8),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            '${provider.getGlobalStreak()}',
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF111111),
+                            ),
+                          ),
+                          const Text(
+                            'HARI STREAK',
+                            style: TextStyle(
+                              fontSize: 9,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF111111),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'LEVEL ${provider.getGlobalLevel()}',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w900,
+                          color: textColor,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        provider.getLevelTitle(provider.getGlobalLevel()),
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          color: textColor,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Builder(
+                        builder: (context) {
+                          final totalDeposits = provider.goals.fold(0, (sum, g) {
+                            return sum + g.transactions.where((t) => t.type == TransactionType.deposit).length;
+                          });
+                          final currentProgressInLevel = totalDeposits % 5;
+                          const nextLevelReq = 5;
+                          final double pct = currentProgressInLevel / nextLevelReq;
+                          
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  color: isDark ? const Color(0xFF444444) : const Color(0xFFEEEEEE),
+                                  border: Border.all(color: borderColor, width: 1.5),
+                                ),
+                                child: FractionallySizedBox(
+                                  alignment: Alignment.centerLeft,
+                                  widthFactor: pct.clamp(0.0, 1.0),
+                                  child: Container(
+                                    color: const Color(0xFFFFE500),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '$currentProgressInLevel / $nextLevelReq deposit menuju level berikutnya',
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w600,
+                                  color: subtextColor,
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 24),
 
           Row(

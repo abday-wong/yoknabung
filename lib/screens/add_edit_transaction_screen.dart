@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,6 +11,7 @@ import 'package:uuid/uuid.dart';
 import '../models/transaction.dart';
 import '../providers/savings_provider.dart';
 import '../widgets/neo_button.dart';
+import '../widgets/neo_card.dart';
 import '../widgets/neo_dialog.dart';
 
 class ThousandsSeparatorInputFormatter extends TextInputFormatter {
@@ -297,9 +299,13 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
         type: _type,
         proofImagePath: _proofImagePath,
       );
-      provider.addTransaction(widget.goalId, newTx);
-      Navigator.pop(context);
-      NeoDialog.showNeoSnackbar(context, message: 'Transaksi berhasil dicatat!');
+      final milestone = provider.addTransaction(widget.goalId, newTx);
+      if (milestone != null) {
+        _showMilestoneCelebration(context, milestone, 'Transaksi berhasil dicatat!');
+      } else {
+        Navigator.pop(context);
+        NeoDialog.showNeoSnackbar(context, message: 'Transaksi berhasil dicatat!');
+      }
     } else {
       final updatedTx = Transaction(
         id: widget.existingTransaction!.id,
@@ -309,10 +315,29 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
         type: _type,
         proofImagePath: _proofImagePath,
       );
-      provider.updateTransaction(widget.goalId, updatedTx);
-      Navigator.pop(context);
-      NeoDialog.showNeoSnackbar(context, message: 'Transaksi berhasil diubah!');
+      final milestone = provider.updateTransaction(widget.goalId, updatedTx);
+      if (milestone != null) {
+        _showMilestoneCelebration(context, milestone, 'Transaksi berhasil diubah!');
+      } else {
+        Navigator.pop(context);
+        NeoDialog.showNeoSnackbar(context, message: 'Transaksi berhasil diubah!');
+      }
     }
+  }
+
+  void _showMilestoneCelebration(BuildContext context, double percentage, String successMessage) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogCtx) => MilestoneCelebrationDialog(
+        percentage: percentage,
+        onDismiss: () {
+          Navigator.pop(dialogCtx);
+          Navigator.pop(context);
+          NeoDialog.showNeoSnackbar(context, message: successMessage);
+        },
+      ),
+    );
   }
 
   @override
@@ -643,4 +668,230 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
       ),
     );
   }
+}
+
+class ConfettiParticle {
+  double x;
+  double y;
+  double vx;
+  double vy;
+  double size;
+  Color color;
+  double rotation;
+  double rotationSpeed;
+  int type; // 0: square, 1: circle, 2: triangle
+
+  ConfettiParticle({
+    required this.x,
+    required this.y,
+    required this.vx,
+    required this.vy,
+    required this.size,
+    required this.color,
+    required this.rotation,
+    required this.rotationSpeed,
+    required this.type,
+  });
+
+  void update() {
+    x += vx;
+    y += vy;
+    vy += 0.15; // gravity
+    vx *= 0.98; // drag
+    rotation += rotationSpeed;
+  }
+}
+
+class MilestoneCelebrationDialog extends StatefulWidget {
+  final double percentage;
+  final VoidCallback onDismiss;
+
+  const MilestoneCelebrationDialog({
+    super.key,
+    required this.percentage,
+    required this.onDismiss,
+  });
+
+  @override
+  State<MilestoneCelebrationDialog> createState() => _MilestoneCelebrationDialogState();
+}
+
+class _MilestoneCelebrationDialogState extends State<MilestoneCelebrationDialog> with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  final List<ConfettiParticle> _particles = [];
+  final Random _random = Random();
+  bool _initialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 5),
+    )..addListener(() {
+        if (!mounted) return;
+        setState(() {
+          for (var p in _particles) {
+            p.update();
+            if (p.y > MediaQuery.of(context).size.height) {
+              p.y = -20;
+              p.x = _random.nextDouble() * MediaQuery.of(context).size.width;
+              p.vy = _random.nextDouble() * 5 + 2;
+            }
+          }
+        });
+      });
+    _animationController.repeat();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      final double width = MediaQuery.of(context).size.width;
+      final colors = [
+        const Color(0xFFFFE500),
+        const Color(0xFFFF5733),
+        const Color(0xFF00C49A),
+        const Color(0xFF4361EE),
+        const Color(0xFFFF007F),
+      ];
+      for (int i = 0; i < 50; i++) {
+        _particles.add(
+          ConfettiParticle(
+            x: _random.nextDouble() * width,
+            y: _random.nextDouble() * -200 - 20,
+            vx: _random.nextDouble() * 6 - 3,
+            vy: _random.nextDouble() * 5 + 3,
+            size: _random.nextDouble() * 8 + 8,
+            color: colors[_random.nextInt(colors.length)],
+            rotation: _random.nextDouble() * pi,
+            rotationSpeed: _random.nextDouble() * 0.1 - 0.05,
+            type: _random.nextInt(3),
+          ),
+        );
+      }
+      _initialized = true;
+    }
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isFinished = widget.percentage >= 100.0;
+    
+    return Material(
+      color: Colors.black.withAlpha(178),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: CustomPaint(
+              painter: ConfettiPainter(particles: _particles),
+            ),
+          ),
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: NeoCard(
+                color: isFinished ? const Color(0xFF00C49A) : const Color(0xFFFFE500),
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      isFinished ? '🏆 GOAL TERCAPAI!' : '🎉 MILESTONE BARU!',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF111111),
+                        letterSpacing: 1.1,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      isFinished
+                          ? 'Selamat! Kamu telah berhasil menabung sebesar 100% dari target tabunganmu. Luar biasa!'
+                          : 'Mantap! Tabunganmu sekarang telah terkumpul lebih dari ${widget.percentage.toInt()}% dari target!',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF111111),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Center(
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(color: const Color(0xFF111111), width: 3),
+                        ),
+                        child: Text(
+                          isFinished ? '👑' : '⭐',
+                          style: const TextStyle(fontSize: 48),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 28),
+                    NeoButton(
+                      text: isFinished ? 'Keren, Selesai! 🏁' : 'Lanjutkan Perjuangan! 💪',
+                      color: const Color(0xFF111111),
+                      textColor: Colors.white,
+                      onPressed: widget.onDismiss,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ConfettiPainter extends CustomPainter {
+  final List<ConfettiParticle> particles;
+
+  ConfettiPainter({required this.particles});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..style = PaintingStyle.fill;
+
+    for (var p in particles) {
+      paint.color = p.color;
+      canvas.save();
+      canvas.translate(p.x, p.y);
+      canvas.rotate(p.rotation);
+
+      if (p.type == 0) {
+        // Square
+        canvas.drawRect(Rect.fromCenter(center: Offset.zero, width: p.size, height: p.size), paint);
+      } else if (p.type == 1) {
+        // Circle
+        canvas.drawCircle(Offset.zero, p.size / 2, paint);
+      } else {
+        // Triangle
+        final path = Path()
+          ..moveTo(0, -p.size / 2)
+          ..lineTo(p.size / 2, p.size / 2)
+          ..lineTo(-p.size / 2, p.size / 2)
+          ..close();
+        canvas.drawPath(path, paint);
+      }
+      canvas.restore();
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
