@@ -739,12 +739,18 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(height: 8),
                       Builder(
                         builder: (context) {
-                          final totalDeposits = provider.goals.fold(0, (sum, g) {
-                            return sum + g.transactions.where((t) => t.type == TransactionType.deposit).length;
-                          });
-                          final currentProgressInLevel = totalDeposits % 5;
-                          const nextLevelReq = 5;
-                          final double pct = currentProgressInLevel / nextLevelReq;
+                          final currentExp = provider.getGlobalExp();
+                          final currentLevel = provider.getGlobalLevel();
+                          final minExp = provider.getMinExpForLevel(currentLevel);
+                          final maxExp = provider.getMaxExpForLevel(currentLevel);
+                          
+                          final range = maxExp - minExp;
+                          final progressInLevel = range > 0 ? (currentExp - minExp) : 0.0;
+                          final double pct = range > 0 ? (progressInLevel / range) : 1.0;
+                          
+                          final String expProgressText = currentLevel >= 5
+                              ? '${currencyFormatter.format(currentExp)} EXP (Dah mentok kink)'
+                              : '${currencyFormatter.format(currentExp)} / ${currencyFormatter.format(maxExp)} EXP buat naik level';
                           
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -765,7 +771,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '$currentProgressInLevel / $nextLevelReq deposit menuju level berikutnya',
+                                expProgressText,
                                 style: TextStyle(
                                   fontSize: 9,
                                   fontWeight: FontWeight.w600,

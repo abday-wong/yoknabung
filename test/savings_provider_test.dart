@@ -264,7 +264,7 @@ void main() {
           'test_g',
           Transaction(
             id: 'tx_extra_$i',
-            amount: 5000,
+            amount: 10000,
             date: now.subtract(Duration(days: i + 2)),
             note: 'Extra',
             type: TransactionType.deposit,

@@ -104,11 +104,38 @@ class SavingsProvider with ChangeNotifier {
     return streak;
   }
 
-  int getGlobalLevel() {
-    final int totalDeposits = _goals.fold(0, (sum, goal) {
-      return sum + goal.transactions.where((t) => t.type == TransactionType.deposit).length;
+  double getGlobalExp() {
+    return _goals.fold(0.0, (sum, goal) {
+      final depositSum = goal.transactions
+          .where((t) => t.type == TransactionType.deposit)
+          .fold(0.0, (txSum, tx) => txSum + tx.amount);
+      return sum + depositSum;
     });
-    return (totalDeposits / 5).floor() + 1;
+  }
+
+  int getGlobalLevel() {
+    final double exp = getGlobalExp();
+    if (exp < 50000) return 1;
+    if (exp < 200000) return 2;
+    if (exp < 1000000) return 3;
+    if (exp < 5000000) return 4;
+    return 5;
+  }
+
+  double getMinExpForLevel(int level) {
+    if (level <= 1) return 0;
+    if (level == 2) return 50000;
+    if (level == 3) return 200000;
+    if (level == 4) return 1000000;
+    return 5000000;
+  }
+
+  double getMaxExpForLevel(int level) {
+    if (level <= 1) return 50000;
+    if (level == 2) return 200000;
+    if (level == 3) return 1000000;
+    if (level == 4) return 5000000;
+    return 5000000;
   }
 
   String getLevelTitle(int level) {
