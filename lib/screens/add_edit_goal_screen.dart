@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -193,6 +194,19 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
   }
 
   Future<void> _pickImage(ImageSource source) async {
+    if (source == ImageSource.camera) {
+      final isMobile = !kIsWeb && (Platform.isAndroid || Platform.isIOS);
+      if (!isMobile) {
+        if (mounted) {
+          NeoDialog.showNeoSnackbar(
+            context,
+            message: 'Kamera hanya tersedia pada perangkat mobile (Android/iOS). Silakan gunakan opsi Galeri.',
+          );
+        }
+        return;
+      }
+    }
+
     try {
       final ImagePicker picker = ImagePicker();
       final XFile? pickedFile = await picker.pickImage(
