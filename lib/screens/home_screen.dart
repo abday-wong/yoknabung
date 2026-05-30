@@ -106,6 +106,221 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _showReminderSettingsBottomSheet(BuildContext context, SavingsProvider provider) {
+    bool enabled = provider.isReminderEnabled;
+    int hour = provider.reminderHour;
+    int minute = provider.reminderMinute;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: provider.isDarkMode ? const Color(0xFF1E1E1E) : const Color(0xFFFFFDE7),
+      elevation: 0,
+      shape: Border(
+        top: BorderSide(
+          color: provider.isDarkMode ? Colors.white : const Color(0xFF111111),
+          width: 2.5,
+        ),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setBottomSheetState) {
+            final isDark = provider.isDarkMode;
+            final textColor = isDark ? Colors.white : const Color(0xFF111111);
+            final borderColor = isDark ? Colors.white : const Color(0xFF111111);
+
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 50,
+                        height: 5,
+                        color: borderColor,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Pengingat Menabung Harian',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        color: textColor,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Aktifkan Pengingat',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: textColor,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            setBottomSheetState(() {
+                              enabled = !enabled;
+                            });
+                          },
+                          child: Container(
+                            width: 60,
+                            height: 34,
+                            decoration: BoxDecoration(
+                              color: enabled
+                                  ? const Color(0xFF00C49A)
+                                  : (isDark ? const Color(0xFF2E2E2E) : Colors.white),
+                              border: Border.all(color: borderColor, width: 2.5),
+                            ),
+                            child: Stack(
+                              children: [
+                                AnimatedPositioned(
+                                  duration: const Duration(milliseconds: 150),
+                                  left: enabled ? 28 : 2,
+                                  top: 2,
+                                  child: Container(
+                                    width: 24,
+                                    height: 24,
+                                    decoration: BoxDecoration(
+                                      color: isDark ? Colors.white : const Color(0xFF111111),
+                                      border: Border.all(color: borderColor, width: 1.5),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    AnimatedOpacity(
+                      opacity: enabled ? 1.0 : 0.4,
+                      duration: const Duration(milliseconds: 200),
+                      child: IgnorePointer(
+                        ignoring: !enabled,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Waktu Pengingat',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: textColor,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () async {
+                                final TimeOfDay? picked = await showTimePicker(
+                                  context: context,
+                                  initialTime: TimeOfDay(hour: hour, minute: minute),
+                                  builder: (context, child) {
+                                    return Theme(
+                                      data: Theme.of(context).copyWith(
+                                        colorScheme: ColorScheme.light(
+                                          primary: const Color(0xFFFFE500),
+                                          onPrimary: const Color(0xFF111111),
+                                          surface: isDark ? const Color(0xFF1E1E1E) : Colors.white,
+                                          onSurface: textColor,
+                                        ),
+                                        textButtonTheme: TextButtonThemeData(
+                                          style: TextButton.styleFrom(
+                                            foregroundColor: textColor,
+                                            textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                                          ),
+                                        ),
+                                      ),
+                                      child: child!,
+                                    );
+                                  },
+                                );
+                                if (picked != null) {
+                                  setBottomSheetState(() {
+                                    hour = picked.hour;
+                                    minute = picked.minute;
+                                  });
+                                }
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFE500),
+                                  border: Border.all(color: borderColor, width: 2.5),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: borderColor,
+                                      offset: const Offset(3, 3),
+                                      blurRadius: 0,
+                                    ),
+                                  ],
+                                ),
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                child: Text(
+                                  '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}',
+                                  style: const TextStyle(
+                                    color: Color(0xFF111111),
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: NeoButton(
+                            text: 'Batal',
+                            color: isDark ? const Color(0xFF2E2E2E) : Colors.white,
+                            textColor: textColor,
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: NeoButton(
+                            text: 'Simpan',
+                            color: const Color(0xFFFF5733),
+                            textColor: Colors.white,
+                            onPressed: () async {
+                              await provider.updateReminderSettings(enabled, hour, minute);
+                              if (context.mounted) {
+                                Navigator.pop(context);
+                                NeoDialog.showNeoSnackbar(
+                                  context,
+                                  message: enabled 
+                                      ? 'Pengingat harian aktif jam ${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}'
+                                      : 'Pengingat harian dimatikan',
+                                );
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   String _getCategoryIndonesian(String cat) {
     switch (cat.toLowerCase()) {
       case 'vacation':
@@ -160,6 +375,15 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         actions: [
+          IconButton(
+            icon: Icon(
+              Icons.notifications_active_outlined,
+              color: textColor,
+            ),
+            onPressed: () {
+              _showReminderSettingsBottomSheet(context, provider);
+            },
+          ),
           IconButton(
             icon: Icon(
               isDark ? Icons.wb_sunny : Icons.nights_stay,

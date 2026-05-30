@@ -6,16 +6,23 @@ import 'package:uuid/uuid.dart';
 import '../models/saving_goal.dart';
 import '../models/transaction.dart';
 import '../models/milestone.dart';
+import '../services/notification_service.dart';
 
 class SavingsProvider with ChangeNotifier {
   List<SavingGoal> _goals = [];
   bool _isLoading = true;
   final Uuid _uuid = const Uuid();
   bool _isDarkMode = false;
+  bool _isReminderEnabled = false;
+  int _reminderHour = 20;
+  int _reminderMinute = 0;
 
   List<SavingGoal> get goals => _goals;
   bool get isLoading => _isLoading;
   bool get isDarkMode => _isDarkMode;
+  bool get isReminderEnabled => _isReminderEnabled;
+  int get reminderHour => _reminderHour;
+  int get reminderMinute => _reminderMinute;
 
   SavingsProvider() {
     loadFromPrefs();
@@ -137,19 +144,29 @@ class SavingsProvider with ChangeNotifier {
     return percentage.clamp(0.0, 100.0);
   }
 
+  DateTime _normalizeDate(DateTime dt) {
+    return DateTime(dt.year, dt.month, dt.day);
+  }
+
   int getDaysRemaining(SavingGoal goal) {
-    final diff = goal.targetDate.difference(DateTime.now()).inDays;
+    final today = _normalizeDate(DateTime.now());
+    final target = _normalizeDate(goal.targetDate);
+    final diff = target.difference(today).inDays;
     return max(0, diff);
   }
 
   double getDailyTarget(SavingGoal goal) {
-    int totalDays = goal.targetDate.difference(goal.startDate).inDays;
+    final start = _normalizeDate(goal.startDate);
+    final target = _normalizeDate(goal.targetDate);
+    int totalDays = target.difference(start).inDays;
     if (totalDays <= 0) totalDays = 1;
     return goal.targetAmount / totalDays;
   }
 
   double getWeeklyTarget(SavingGoal goal) {
-    int totalDays = goal.targetDate.difference(goal.startDate).inDays;
+    final start = _normalizeDate(goal.startDate);
+    final target = _normalizeDate(goal.targetDate);
+    int totalDays = target.difference(start).inDays;
     if (totalDays <= 0) totalDays = 1;
     double totalWeeks = totalDays / 7.0;
     if (totalWeeks < 0.1) totalWeeks = 0.1;
@@ -157,7 +174,9 @@ class SavingsProvider with ChangeNotifier {
   }
 
   double getMonthlyTarget(SavingGoal goal) {
-    int totalDays = goal.targetDate.difference(goal.startDate).inDays;
+    final start = _normalizeDate(goal.startDate);
+    final target = _normalizeDate(goal.targetDate);
+    int totalDays = target.difference(start).inDays;
     if (totalDays <= 0) totalDays = 1;
     double totalMonths = totalDays / 30.0;
     if (totalMonths < 0.1) totalMonths = 0.1;
@@ -170,25 +189,36 @@ class SavingsProvider with ChangeNotifier {
         .map((t) => t.amount)
         .fold(0.0, (sum, val) => sum + val);
 
-    int days = DateTime.now().difference(goal.startDate).inDays;
+    final start = _normalizeDate(goal.startDate);
+    final today = _normalizeDate(DateTime.now());
+    int days = today.difference(start).inDays + 1;
     if (days <= 0) days = 1;
     return deposits / days;
+  }
+
+  double getEffectiveDailyRate(SavingGoal goal) {
+    double avgDaily = getAverageDailyDeposit(goal);
+    if (avgDaily <= 0) {
+      avgDaily = getDailyTarget(goal);
+    }
+    return avgDaily;
   }
 
   DateTime? getProjectedCompletion(SavingGoal goal) {
     final remaining = goal.targetAmount - goal.currentAmount;
     if (remaining <= 0) {
       if (goal.transactions.isNotEmpty) {
-        return goal.transactions.last.date;
+        return _normalizeDate(goal.transactions.last.date);
       }
-      return goal.startDate;
+      return _normalizeDate(goal.startDate);
     }
 
-    final avgDaily = getAverageDailyDeposit(goal);
-    if (avgDaily <= 0) return null;
+    final rate = getEffectiveDailyRate(goal);
+    if (rate <= 0) return null;
 
-    final daysNeeded = (remaining / avgDaily).ceil();
-    return DateTime.now().add(Duration(days: daysNeeded));
+    final daysNeeded = (remaining / rate).ceil();
+    final today = _normalizeDate(DateTime.now());
+    return today.add(Duration(days: daysNeeded));
   }
 
   List<Milestone> recalculateMilestones(SavingGoal goal) {
@@ -275,6 +305,10 @@ class SavingsProvider with ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       _isDarkMode = prefs.getBool('is_dark_mode') ?? false;
+      _isReminderEnabled = prefs.getBool('is_reminder_enabled') ?? false;
+      _reminderHour = prefs.getInt('reminder_hour') ?? 20;
+      _reminderMinute = prefs.getInt('reminder_minute') ?? 0;
+
       final String? data = prefs.getString('savings_goals');
       if (data == null || data.isEmpty) {
         _loadSampleData();
@@ -293,6 +327,29 @@ class SavingsProvider with ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  Future<void> updateReminderSettings(bool enabled, int hour, int minute) async {
+    _isReminderEnabled = enabled;
+    _reminderHour = hour;
+    _reminderMinute = minute;
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('is_reminder_enabled', _isReminderEnabled);
+      await prefs.setInt('reminder_hour', _reminderHour);
+      await prefs.setInt('reminder_minute', _reminderMinute);
+
+      if (_isReminderEnabled) {
+        await NotificationService().scheduleDailyReminder(_reminderHour, _reminderMinute);
+      } else {
+        await NotificationService().cancelReminder();
+      }
+    } catch (e) {
+      debugPrint('Error updating reminder settings: $e');
+    }
+
+    notifyListeners();
   }
 
 

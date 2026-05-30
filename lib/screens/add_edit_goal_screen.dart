@@ -65,13 +65,21 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
     _targetAmount = goal?.targetAmount ?? 0.0;
     _category = goal?.category ?? 'gadget';
     _emoji = goal?.emoji ?? '📱';
-    _startDate = goal?.startDate ?? DateTime.now();
-    _targetDate = goal?.targetDate ?? DateTime.now().add(const Duration(days: 30));
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    _startDate = goal != null
+        ? DateTime(goal.startDate.year, goal.startDate.month, goal.startDate.day)
+        : today;
+    _targetDate = goal != null
+        ? DateTime(goal.targetDate.year, goal.targetDate.month, goal.targetDate.day)
+        : today.add(const Duration(days: 30));
     _notes = goal?.notes;
 
     double initialDailySavings = 0.0;
     if (goal != null) {
-      int totalDays = goal.targetDate.difference(goal.startDate).inDays;
+      final start = DateTime(goal.startDate.year, goal.startDate.month, goal.startDate.day);
+      final target = DateTime(goal.targetDate.year, goal.targetDate.month, goal.targetDate.day);
+      int totalDays = target.difference(start).inDays;
       if (totalDays <= 0) totalDays = 1;
       initialDailySavings = goal.targetAmount / totalDays;
     }
@@ -112,7 +120,8 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
     if (_targetAmount > 0 && _plannedDailySavings > 0) {
       final daysNeeded = (_targetAmount / _plannedDailySavings).ceil();
       if (daysNeeded > 0 && daysNeeded < 365 * 100) {
-        _targetDate = _startDate.add(Duration(days: daysNeeded));
+        final start = DateTime(_startDate.year, _startDate.month, _startDate.day);
+        _targetDate = start.add(Duration(days: daysNeeded));
       }
     }
   }
@@ -159,8 +168,9 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
 
     if (picked != null) {
       setState(() {
+        final pickedDate = DateTime(picked.year, picked.month, picked.day);
         if (isStart) {
-          _startDate = picked;
+          _startDate = pickedDate;
           if (_useDailyPrediction) {
             _updatePredictedTargetDate();
           } else {
@@ -169,7 +179,7 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
             }
           }
         } else {
-          _targetDate = picked;
+          _targetDate = pickedDate;
         }
       });
     }

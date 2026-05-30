@@ -21,7 +21,7 @@ class RoadmapWidget extends StatelessWidget {
     final cardBgColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
     final subtextColor = isDark ? Colors.white70 : Colors.black54;
 
-    final avgDaily = provider.getAverageDailyDeposit(goal);
+    final rate = provider.getEffectiveDailyRate(goal);
     final formatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
     final DateFormat df = DateFormat('dd MMMM yyyy', 'id_ID');
 
@@ -31,12 +31,23 @@ class RoadmapWidget extends StatelessWidget {
         final isReached = milestone.isReached;
 
         String predictionText = '-';
-        if (isReached && milestone.reachedAt != null) {
-          predictionText = 'Tercapai pada: ${df.format(milestone.reachedAt!)}';
-        } else if (avgDaily > 0) {
-          final daysNeeded = (milestone.targetAmount / avgDaily).ceil();
-          final predictedDate = goal.startDate.add(Duration(days: daysNeeded));
-          predictionText = 'Proyeksi: ${df.format(predictedDate)}';
+        if (isReached) {
+          if (milestone.reachedAt != null) {
+            predictionText = 'Tercapai pada: ${df.format(milestone.reachedAt!)}';
+          } else {
+            predictionText = 'Tercapai';
+          }
+        } else if (rate > 0) {
+          final remainingForMilestone = milestone.targetAmount - goal.currentAmount;
+          if (remainingForMilestone <= 0) {
+            predictionText = 'Tercapai';
+          } else {
+            final daysNeeded = (remainingForMilestone / rate).ceil();
+            final now = DateTime.now();
+            final todayOnly = DateTime(now.year, now.month, now.day);
+            final predictedDate = todayOnly.add(Duration(days: daysNeeded));
+            predictionText = 'Proyeksi: ${df.format(predictedDate)}';
+          }
         } else {
           predictionText = 'Proyeksi: Belum ada data tabungan';
         }
