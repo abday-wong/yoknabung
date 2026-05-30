@@ -56,7 +56,12 @@ class NotificationService {
     return androidGranted || iosGranted;
   }
 
-  Future<void> scheduleDailyReminder(int hour, int minute) async {
+  Future<void> scheduleDailyReminder({
+    required int hour,
+    required int minute,
+    String title = 'Waktunya Menabung! 💰',
+    String body = 'Jangan lupa sisihkan uang hari ini untuk mencapai target tabunganmu!',
+  }) async {
     await cancelReminder();
 
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
@@ -94,8 +99,8 @@ class NotificationService {
 
     await _notificationsPlugin.zonedSchedule(
       id: 1001,
-      title: 'Waktunya Menabung! 💰',
-      body: 'Jangan lupa sisihkan uang hari ini untuk mencapai target tabunganmu!',
+      title: title,
+      body: body,
       scheduledDate: scheduledDate,
       notificationDetails: platformDetails,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,

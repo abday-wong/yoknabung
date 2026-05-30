@@ -16,6 +16,7 @@ class SavingsProvider with ChangeNotifier {
   bool _isReminderEnabled = false;
   int _reminderHour = 20;
   int _reminderMinute = 0;
+  String _reminderMessage = 'Jangan lupa sisihkan uang hari ini untuk mencapai target tabunganmu!';
 
   List<SavingGoal> get goals => _goals;
   bool get isLoading => _isLoading;
@@ -23,6 +24,7 @@ class SavingsProvider with ChangeNotifier {
   bool get isReminderEnabled => _isReminderEnabled;
   int get reminderHour => _reminderHour;
   int get reminderMinute => _reminderMinute;
+  String get reminderMessage => _reminderMessage;
 
   SavingsProvider() {
     loadFromPrefs();
@@ -308,6 +310,8 @@ class SavingsProvider with ChangeNotifier {
       _isReminderEnabled = prefs.getBool('is_reminder_enabled') ?? false;
       _reminderHour = prefs.getInt('reminder_hour') ?? 20;
       _reminderMinute = prefs.getInt('reminder_minute') ?? 0;
+      _reminderMessage = prefs.getString('reminder_message') ??
+          'Jangan lupa sisihkan uang hari ini untuk mencapai target tabunganmu!';
 
       final String? data = prefs.getString('savings_goals');
       if (data == null || data.isEmpty) {
@@ -329,19 +333,25 @@ class SavingsProvider with ChangeNotifier {
     }
   }
 
-  Future<void> updateReminderSettings(bool enabled, int hour, int minute) async {
+  Future<void> updateReminderSettings(bool enabled, int hour, int minute, String message) async {
     _isReminderEnabled = enabled;
     _reminderHour = hour;
     _reminderMinute = minute;
+    _reminderMessage = message;
 
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('is_reminder_enabled', _isReminderEnabled);
       await prefs.setInt('reminder_hour', _reminderHour);
       await prefs.setInt('reminder_minute', _reminderMinute);
+      await prefs.setString('reminder_message', _reminderMessage);
 
       if (_isReminderEnabled) {
-        await NotificationService().scheduleDailyReminder(_reminderHour, _reminderMinute);
+        await NotificationService().scheduleDailyReminder(
+          hour: _reminderHour,
+          minute: _reminderMinute,
+          body: _reminderMessage,
+        );
       } else {
         await NotificationService().cancelReminder();
       }
