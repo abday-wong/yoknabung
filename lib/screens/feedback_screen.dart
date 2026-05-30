@@ -51,24 +51,24 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     final category = _selectedCategory;
     final message = _messageController.text.trim();
 
-    // Payload yang akan dikirimkan ke FormSubmit.co
-    final payload = {
-      'Nama': name.isNotEmpty ? name : 'Pengguna Anonim',
-      'Email': email.isNotEmpty ? email : 'Tidak disediakan',
-      'Kategori': category,
-      'Pesan': message,
-      '_subject': '[YokNabung] $category dari ${name.isNotEmpty ? name : 'Pengguna'}',
-    };
-
     try {
       final response = await http.post(
         Uri.parse('https://formsubmit.co/ajax/abday.hafidz23@gmail.com'),
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
+          'User-Agent': 'YokNabung/2.0.0 Android',
         },
-        body: jsonEncode(payload),
-      ).timeout(const Duration(seconds: 10));
+        body: jsonEncode({
+          'Nama': name.isNotEmpty ? name : 'Pengguna Anonim',
+          'Email': email.isNotEmpty ? email : 'Tidak disediakan',
+          'Kategori': category,
+          'Pesan': message,
+          '_subject': '[YokNabung] $category dari ${name.isNotEmpty ? name : "Pengguna"}',
+          '_captcha': 'false',
+          '_replyto': email.isNotEmpty ? email : 'no-reply@yoknabung.app',
+        }),
+      ).timeout(const Duration(seconds: 15));
 
       setState(() {
         _isSending = false;
@@ -78,13 +78,13 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         if (mounted) {
           NeoDialog.showNeoSnackbar(
             context,
-            message: 'Terima kasih! Pengaduan Anda berhasil dikirim langsung.',
+            message: 'Terima kasih! Pengaduan Anda berhasil dikirim.',
           );
           Navigator.pop(context);
         }
       } else {
         if (mounted) {
-          _showErrorDialog('Gagal mengirim pengaduan. Kode error dari server: ${response.statusCode}');
+          _showErrorDialog('Server menolak pengiriman (kode: ${response.statusCode}). Coba lagi dalam beberapa saat.');
         }
       }
     } catch (e) {
@@ -92,7 +92,8 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         _isSending = false;
       });
       if (mounted) {
-        _showErrorDialog('Gagal terhubung ke server. Pastikan perangkat Anda aktif internetnya.');
+        final errMsg = e.toString();
+        _showErrorDialog('Gagal terhubung ke server. Detail: ${errMsg.length > 120 ? errMsg.substring(0, 120) : errMsg}');
       }
     }
   }
