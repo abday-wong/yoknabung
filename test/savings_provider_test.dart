@@ -149,7 +149,7 @@ void main() {
       expect(projected, todayOnly.add(const Duration(days: 8)));
     });
 
-    test('SavingGoal supports imageUrl and targetUrl serialization and copyWith', () {
+    test('SavingGoal supports imageUrl, targetUrl, and plannedDailySavings serialization and copyWith', () {
       final goal = SavingGoal(
         id: 'test_goal',
         title: 'Test',
@@ -162,26 +162,32 @@ void main() {
         transactions: [],
         imageUrl: '/path/to/image.png',
         targetUrl: 'https://example.com',
+        plannedDailySavings: 10000.0,
       );
 
       final json = goal.toJson();
       expect(json['imageUrl'], '/path/to/image.png');
       expect(json['targetUrl'], 'https://example.com');
+      expect(json['plannedDailySavings'], 10000.0);
 
       final fromJson = SavingGoal.fromJson(json);
       expect(fromJson.imageUrl, '/path/to/image.png');
       expect(fromJson.targetUrl, 'https://example.com');
+      expect(fromJson.plannedDailySavings, 10000.0);
 
-      final copied = fromJson.copyWith(clearImage: true, clearUrl: true);
+      final copied = fromJson.copyWith(clearImage: true, clearUrl: true, clearPlannedDailySavings: true);
       expect(copied.imageUrl, isNull);
       expect(copied.targetUrl, isNull);
+      expect(copied.plannedDailySavings, isNull);
 
       final copiedWithValues = fromJson.copyWith(
         imageUrl: '/path/to/new_image.png',
         targetUrl: 'https://new.example.com',
+        plannedDailySavings: 20000.0,
       );
       expect(copiedWithValues.imageUrl, '/path/to/new_image.png');
       expect(copiedWithValues.targetUrl, 'https://new.example.com');
+      expect(copiedWithValues.plannedDailySavings, 20000.0);
     });
   });
 }

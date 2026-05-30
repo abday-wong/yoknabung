@@ -15,6 +15,7 @@ class SavingGoal {
   final String? notes;
   final String? imageUrl;
   final String? targetUrl;
+  final double? plannedDailySavings;
 
   SavingGoal({
     required this.id,
@@ -30,6 +31,7 @@ class SavingGoal {
     this.notes,
     this.imageUrl,
     this.targetUrl,
+    this.plannedDailySavings,
   });
 
   double get currentAmount {
@@ -57,8 +59,10 @@ class SavingGoal {
     String? notes,
     String? imageUrl,
     String? targetUrl,
+    double? plannedDailySavings,
     bool clearImage = false,
     bool clearUrl = false,
+    bool clearPlannedDailySavings = false,
   }) {
     return SavingGoal(
       id: id,
@@ -74,6 +78,7 @@ class SavingGoal {
       notes: notes ?? this.notes,
       imageUrl: clearImage ? null : (imageUrl ?? this.imageUrl),
       targetUrl: clearUrl ? null : (targetUrl ?? this.targetUrl),
+      plannedDailySavings: clearPlannedDailySavings ? null : (plannedDailySavings ?? this.plannedDailySavings),
     );
   }
 
@@ -92,6 +97,7 @@ class SavingGoal {
       'notes': notes,
       'imageUrl': imageUrl,
       'targetUrl': targetUrl,
+      'plannedDailySavings': plannedDailySavings,
     };
   }
 
@@ -116,6 +122,9 @@ class SavingGoal {
       notes: json['notes'] as String?,
       imageUrl: json['imageUrl'] as String?,
       targetUrl: json['targetUrl'] as String?,
+      plannedDailySavings: json['plannedDailySavings'] != null
+          ? (json['plannedDailySavings'] as num).toDouble()
+          : null,
     );
   }
 }

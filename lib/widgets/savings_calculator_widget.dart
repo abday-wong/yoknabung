@@ -99,13 +99,15 @@ class SavingsCalculatorWidget extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          buildCalculatorRow('Durasi Total', durationText, const Color(0xFFFFE500), forceDarkText: true),
+          buildCalculatorRow('Mulai Menabung', dateFormatter.format(goal.startDate), isDark ? Colors.grey.shade800 : Colors.grey.shade100),
+          buildCalculatorRow('Target Selesai', dateFormatter.format(goal.targetDate), isDark ? Colors.grey.shade800 : Colors.grey.shade100),
+          buildCalculatorRow('Durasi Rencana', durationText, const Color(0xFFFFE500), forceDarkText: true),
           buildCalculatorRow('Perlu nabung/hari', currencyFormatter.format(dailyTarget), const Color(0xFF00C49A), forceDarkText: true),
           buildCalculatorRow('Perlu nabung/minggu', currencyFormatter.format(weeklyTarget), isDark ? const Color(0xFF4361EE).withValues(alpha: 0.3) : const Color(0xFF4361EE).withValues(alpha: 0.15)),
           buildCalculatorRow('Perlu nabung/bulan', currencyFormatter.format(monthlyTarget), isDark ? const Color(0xFF4361EE).withValues(alpha: 0.3) : const Color(0xFF4361EE).withValues(alpha: 0.15)),
-          buildCalculatorRow('Sisa waktu', '$daysRemaining hari lagi', isUrgent ? (isDark ? const Color(0xFFFF5733).withValues(alpha: 0.3) : const Color(0xFFFF5733).withValues(alpha: 0.2)) : (isDark ? Colors.grey.shade800 : Colors.grey.shade100), isValRed: isUrgent),
-          buildCalculatorRow('Proyeksi selesai', projectedDateText, isDark ? const Color(0xFFFF5733).withValues(alpha: 0.2) : const Color(0xFFFF5733).withValues(alpha: 0.1)),
-          buildCalculatorRow('Rata-rata harian (Kebiasaan)', currencyFormatter.format(avgDaily), isDark ? const Color(0xFF00C49A).withValues(alpha: 0.2) : const Color(0xFF00C49A).withValues(alpha: 0.1)),
+          buildCalculatorRow('Sisa Waktu Target', '$daysRemaining hari lagi', isUrgent ? (isDark ? const Color(0xFFFF5733).withValues(alpha: 0.3) : const Color(0xFFFF5733).withValues(alpha: 0.2)) : (isDark ? Colors.grey.shade800 : Colors.grey.shade100), isValRed: isUrgent),
+          buildCalculatorRow('Proyeksi Selesai (Riil)', projectedDateText, isDark ? const Color(0xFFFF5733).withValues(alpha: 0.2) : const Color(0xFFFF5733).withValues(alpha: 0.1)),
+          buildCalculatorRow('Tabungan Harian Rata-rata', currencyFormatter.format(avgDaily), isDark ? const Color(0xFF00C49A).withValues(alpha: 0.2) : const Color(0xFF00C49A).withValues(alpha: 0.1)),
           const SizedBox(height: 12),
           Container(
             decoration: BoxDecoration(
@@ -141,10 +143,10 @@ class SavingsCalculatorWidget extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   avgDaily == 0
-                      ? 'Belum ada transaksi tercatat. Mulai menabung hari ini untuk menganalisis kebiasaan menabungmu!'
+                      ? 'Belum ada transaksi menabung. Mulai catat tabungan masuk untuk menganalisis kebiasaan menabungmu dan memproyeksikan tanggal selesai riil!'
                       : (avgDaily >= dailyTarget
-                          ? 'Hebat! Rata-rata tabungan harianmu (${currencyFormatter.format(avgDaily)}) sudah di atas target harian (${currencyFormatter.format(dailyTarget)}). Kamu di jalur yang tepat!'
-                          : 'Rata-rata tabungan harianmu (${currencyFormatter.format(avgDaily)}) masih di bawah target harian (${currencyFormatter.format(dailyTarget)}). Berdasarkan kebiasaanmu, goal diproyeksikan selesai pada $projectedDateText.'),
+                          ? 'Luar biasa! Rata-rata tabungan harianmu (${currencyFormatter.format(avgDaily)}) berada di atas target wajib harian (${currencyFormatter.format(dailyTarget)}). Dengan kecepatan ini, kamu diproyeksikan selesai lebih cepat pada $projectedDateText!'
+                          : 'Rata-rata tabungan harianmu (${currencyFormatter.format(avgDaily)}) masih di bawah target wajib harian (${currencyFormatter.format(dailyTarget)}). Berdasarkan kebiasaan ini, kamu diproyeksikan baru akan selesai pada $projectedDateText.'),
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 11,

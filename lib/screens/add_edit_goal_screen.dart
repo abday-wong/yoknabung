@@ -84,11 +84,17 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
 
     double initialDailySavings = 0.0;
     if (goal != null) {
-      final start = DateTime(goal.startDate.year, goal.startDate.month, goal.startDate.day);
-      final target = DateTime(goal.targetDate.year, goal.targetDate.month, goal.targetDate.day);
-      int totalDays = target.difference(start).inDays;
-      if (totalDays <= 0) totalDays = 1;
-      initialDailySavings = goal.targetAmount / totalDays;
+      if (goal.plannedDailySavings != null && goal.plannedDailySavings! > 0) {
+        initialDailySavings = goal.plannedDailySavings!;
+        _useDailyPrediction = true;
+      } else {
+        final start = DateTime(goal.startDate.year, goal.startDate.month, goal.startDate.day);
+        final target = DateTime(goal.targetDate.year, goal.targetDate.month, goal.targetDate.day);
+        int totalDays = target.difference(start).inDays;
+        if (totalDays <= 0) totalDays = 1;
+        initialDailySavings = goal.targetAmount / totalDays;
+        _useDailyPrediction = false;
+      }
     }
     _dailySavingsController = TextEditingController(
       text: initialDailySavings > 0 ? initialDailySavings.toInt().toString() : '',
@@ -288,6 +294,7 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
         notes: _notes?.isEmpty == true ? null : _notes,
         imageUrl: _imageUrl,
         targetUrl: cleanUrl,
+        plannedDailySavings: _useDailyPrediction ? _plannedDailySavings : null,
       );
       provider.addGoal(newGoal);
       Navigator.pop(context);
@@ -305,6 +312,8 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
         targetUrl: cleanUrl,
         clearImage: _imageUrl == null,
         clearUrl: cleanUrl == null,
+        plannedDailySavings: _useDailyPrediction ? _plannedDailySavings : null,
+        clearPlannedDailySavings: !_useDailyPrediction,
       );
       provider.updateGoal(updatedGoal);
       Navigator.pop(context);
@@ -337,6 +346,7 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
       notes: _notes,
       imageUrl: _imageUrl,
       targetUrl: _targetUrlController.text.trim().isEmpty ? null : _targetUrlController.text.trim(),
+      plannedDailySavings: _useDailyPrediction ? _plannedDailySavings : null,
     );
 
     return Scaffold(
