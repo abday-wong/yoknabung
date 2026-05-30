@@ -58,7 +58,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         },
         body: jsonEncode({
           'service_id': 'service_zjya8wd',
-          'template_id': 'template_z59fikv',
+          'template_id': 'template_f8gxh8a',
           'user_id': 'Sy326-2LDmKTEptT_',
           'template_params': {
             'subject': '[YokNabung] $category dari ${name.isNotEmpty ? name : "Pengguna"}',
