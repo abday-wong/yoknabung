@@ -97,15 +97,28 @@ class NotificationService {
       iOS: iosDetails,
     );
 
-    await _notificationsPlugin.zonedSchedule(
-      id: 1001,
-      title: title,
-      body: body,
-      scheduledDate: scheduledDate,
-      notificationDetails: platformDetails,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      matchDateTimeComponents: DateTimeComponents.time,
-    );
+    try {
+      await _notificationsPlugin.zonedSchedule(
+        id: 1001,
+        title: title,
+        body: body,
+        scheduledDate: scheduledDate,
+        notificationDetails: platformDetails,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        matchDateTimeComponents: DateTimeComponents.time,
+      );
+    } catch (e) {
+      // Fallback to inexact scheduling if exact alarm permission is not granted (e.g. Android 14+)
+      await _notificationsPlugin.zonedSchedule(
+        id: 1001,
+        title: title,
+        body: body,
+        scheduledDate: scheduledDate,
+        notificationDetails: platformDetails,
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        matchDateTimeComponents: DateTimeComponents.time,
+      );
+    }
   }
 
   Future<void> cancelReminder() async {

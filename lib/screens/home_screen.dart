@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -31,30 +30,15 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late Timer _clockTimer;
-  String _timeStr = '';
   int _currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _updateTime();
-    _clockTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      _updateTime();
-    });
-  }
-
-  void _updateTime() {
-    if (mounted) {
-      setState(() {
-        _timeStr = DateFormat('HH:mm:ss').format(DateTime.now());
-      });
-    }
   }
 
   @override
   void dispose() {
-    _clockTimer.cancel();
     super.dispose();
   }
 
@@ -472,26 +456,6 @@ class _HomeScreenState extends State<HomeScreen> {
               provider.toggleThemeMode();
             },
           ),
-          Padding(
-            padding: const EdgeInsets.only(right: 16.0),
-            child: Center(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
-                  border: Border.all(color: borderColor, width: 2),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                child: Text(
-                  _timeStr,
-                  style: TextStyle(
-                    color: textColor,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-            ),
-          )
         ],
       ),
       body: Consumer<SavingsProvider>(

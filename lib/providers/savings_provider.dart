@@ -347,6 +347,7 @@ class SavingsProvider with ChangeNotifier {
       await prefs.setString('reminder_message', _reminderMessage);
 
       if (_isReminderEnabled) {
+        await NotificationService().requestPermissions();
         await NotificationService().scheduleDailyReminder(
           hour: _reminderHour,
           minute: _reminderMinute,
