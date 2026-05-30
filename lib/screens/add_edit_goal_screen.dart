@@ -13,9 +13,9 @@ class AddEditGoalScreen extends StatefulWidget {
   final SavingGoal? existingGoal;
 
   const AddEditGoalScreen({
-    Key? key,
+    super.key,
     this.existingGoal,
-  }) : super(key: key);
+  });
 
   @override
   State<AddEditGoalScreen> createState() => _AddEditGoalScreenState();
@@ -236,7 +236,6 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
     final textColor = isDark ? Colors.white : const Color(0xFF111111);
     final borderColor = isDark ? Colors.white : const Color(0xFF111111);
     final cardBgColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
-    final subtextColor = isDark ? Colors.white70 : Colors.black54;
     final hintColor = isDark ? Colors.white30 : Colors.black38;
 
     // Create a temporary goal for live preview
@@ -557,7 +556,7 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
                             },
                             child: Container(
                               decoration: BoxDecoration(
-                                color: const Color(0xFF00C49A).withOpacity(0.15),
+                                color: const Color(0xFF00C49A).withValues(alpha: 0.15),
                                 border: Border.all(color: borderColor, width: 1.5),
                               ),
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),

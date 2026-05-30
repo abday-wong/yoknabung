@@ -8,9 +8,9 @@ class RoadmapWidget extends StatelessWidget {
   final SavingGoal goal;
 
   const RoadmapWidget({
-    Key? key,
+    super.key,
     required this.goal,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'neo_card.dart';
 
 class RealtimeClockWidget extends StatefulWidget {
-  const RealtimeClockWidget({Key? key}) : super(key: key);
+  const RealtimeClockWidget({super.key});
 
   @override
   State<RealtimeClockWidget> createState() => _RealtimeClockWidgetState();

@@ -9,9 +9,9 @@ class SavingsCalculatorWidget extends StatelessWidget {
   final SavingGoal goal;
 
   const SavingsCalculatorWidget({
-    Key? key,
+    super.key,
     required this.goal,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -100,10 +100,10 @@ class SavingsCalculatorWidget extends StatelessWidget {
           const SizedBox(height: 12),
           buildCalculatorRow('Durasi Total', durationText, const Color(0xFFFFE500), forceDarkText: true),
           buildCalculatorRow('Perlu nabung/hari', currencyFormatter.format(dailyTarget), const Color(0xFF00C49A), forceDarkText: true),
-          buildCalculatorRow('Perlu nabung/minggu', currencyFormatter.format(weeklyTarget), isDark ? const Color(0xFF4361EE).withOpacity(0.3) : const Color(0xFF4361EE).withOpacity(0.15)),
-          buildCalculatorRow('Perlu nabung/bulan', currencyFormatter.format(monthlyTarget), isDark ? const Color(0xFF4361EE).withOpacity(0.3) : const Color(0xFF4361EE).withOpacity(0.15)),
-          buildCalculatorRow('Sisa waktu', '$daysRemaining hari lagi', isUrgent ? (isDark ? const Color(0xFFFF5733).withOpacity(0.3) : const Color(0xFFFF5733).withOpacity(0.2)) : (isDark ? Colors.grey.shade800 : Colors.grey.shade100), isValRed: isUrgent),
-          buildCalculatorRow('Proyeksi selesai', projectedDateText, isDark ? const Color(0xFFFF5733).withOpacity(0.2) : const Color(0xFFFF5733).withOpacity(0.1)),
+          buildCalculatorRow('Perlu nabung/minggu', currencyFormatter.format(weeklyTarget), isDark ? const Color(0xFF4361EE).withValues(alpha: 0.3) : const Color(0xFF4361EE).withValues(alpha: 0.15)),
+          buildCalculatorRow('Perlu nabung/bulan', currencyFormatter.format(monthlyTarget), isDark ? const Color(0xFF4361EE).withValues(alpha: 0.3) : const Color(0xFF4361EE).withValues(alpha: 0.15)),
+          buildCalculatorRow('Sisa waktu', '$daysRemaining hari lagi', isUrgent ? (isDark ? const Color(0xFFFF5733).withValues(alpha: 0.3) : const Color(0xFFFF5733).withValues(alpha: 0.2)) : (isDark ? Colors.grey.shade800 : Colors.grey.shade100), isValRed: isUrgent),
+          buildCalculatorRow('Proyeksi selesai', projectedDateText, isDark ? const Color(0xFFFF5733).withValues(alpha: 0.2) : const Color(0xFFFF5733).withValues(alpha: 0.1)),
         ],
       ),
     );

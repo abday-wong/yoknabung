@@ -16,7 +16,7 @@ void main() {
 }
 
 class YokNabungApp extends StatelessWidget {
-  const YokNabungApp({Key? key}) : super(key: key);
+  const YokNabungApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +65,7 @@ class YokNabungApp extends StatelessWidget {
         // Remove material shadows
         shadowColor: Colors.transparent,
         appBarTheme: AppBarTheme(
-          color: scaffoldBgColor,
+          backgroundColor: scaffoldBgColor,
           elevation: 0,
           iconTheme: IconThemeData(color: textColor),
         ),

@@ -13,7 +13,7 @@ class NeoButton extends StatefulWidget {
   final double borderWidth;
 
   const NeoButton({
-    Key? key,
+    super.key,
     this.child,
     this.text,
     this.icon,
@@ -22,7 +22,7 @@ class NeoButton extends StatefulWidget {
     this.onPressed,
     this.padding = const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
     this.borderWidth = 2.5,
-  }) : super(key: key);
+  });
 
   @override
   State<NeoButton> createState() => _NeoButtonState();

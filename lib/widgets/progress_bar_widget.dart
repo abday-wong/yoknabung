@@ -7,10 +7,10 @@ class ProgressBarWidget extends StatelessWidget {
   final Color fillColor;
 
   const ProgressBarWidget({
-    Key? key,
+    super.key,
     required this.percentage,
     this.fillColor = const Color(0xFF00C49A), // Default green accent
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

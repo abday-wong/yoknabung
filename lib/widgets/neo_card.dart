@@ -11,14 +11,14 @@ class NeoCard extends StatelessWidget {
   final double shadowOffset;
 
   const NeoCard({
-    Key? key,
+    super.key,
     required this.child,
     this.color = Colors.white,
     this.padding = const EdgeInsets.all(16.0),
     this.margin,
     this.borderWidth = 2.5,
     this.shadowOffset = 4.0,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

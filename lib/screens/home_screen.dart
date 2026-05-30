@@ -23,7 +23,7 @@ class GlobalTransaction {
 }
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -495,7 +495,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   onLongPress: () => _showGoalOptions(context, provider, goal),
                   child: NeoCard(
                     color: isGoalCompleted
-                        ? const Color(0xFF00C49A).withOpacity(isDark ? 0.25 : 0.1)
+                        ? const Color(0xFF00C49A).withValues(alpha: isDark ? 0.25 : 0.1)
                         : cardBgColor,
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
@@ -536,7 +536,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   const SizedBox(height: 4),
                                   Container(
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFF4361EE).withOpacity(0.15),
+                                      color: const Color(0xFF4361EE).withValues(alpha: 0.15),
                                       border: Border.all(color: borderColor, width: 1.5),
                                     ),
                                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -756,7 +756,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Container(
                             decoration: BoxDecoration(
-                              color: const Color(0xFF4361EE).withOpacity(0.15),
+                              color: const Color(0xFF4361EE).withValues(alpha: 0.15),
                               border: Border.all(color: borderColor, width: 1),
                             ),
                             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),

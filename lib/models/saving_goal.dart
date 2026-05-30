@@ -53,7 +53,7 @@ class SavingGoal {
     String? notes,
   }) {
     return SavingGoal(
-      id: this.id,
+      id: id,
       title: title ?? this.title,
       emoji: emoji ?? this.emoji,
       targetAmount: targetAmount ?? this.targetAmount,

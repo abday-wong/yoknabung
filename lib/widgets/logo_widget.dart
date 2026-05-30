@@ -6,10 +6,10 @@ class LogoWidget extends StatelessWidget {
   final bool hasBorder;
 
   const LogoWidget({
-    Key? key,
+    super.key,
     this.size = 40.0,
     this.hasBorder = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +75,6 @@ class _LogoPainter extends CustomPainter {
 
     // 3. Draw Eyelashes / Bottom Spikes
     // We want to draw 5 spikes pointing downwards from the bottom eyelid area.
-    final Path spikesPath = Path();
     final double eyeW = size.width * 0.65;
     final double eyeH = size.height * 0.28;
 

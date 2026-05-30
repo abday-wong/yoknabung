@@ -3,10 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
-import '../models/saving_goal.dart';
 import '../models/transaction.dart';
 import '../providers/savings_provider.dart';
-import '../widgets/neo_card.dart';
 import '../widgets/neo_button.dart';
 import '../widgets/neo_dialog.dart';
 
@@ -39,10 +37,10 @@ class AddEditTransactionScreen extends StatefulWidget {
   final Transaction? existingTransaction;
 
   const AddEditTransactionScreen({
-    Key? key,
+    super.key,
     required this.goalId,
     this.existingTransaction,
-  }) : super(key: key);
+  });
 
   @override
   State<AddEditTransactionScreen> createState() => _AddEditTransactionScreenState();
@@ -214,7 +212,6 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
     final textColor = isDark ? Colors.white : const Color(0xFF111111);
     final borderColor = isDark ? Colors.white : const Color(0xFF111111);
     final cardBgColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
-    final subtextColor = isDark ? Colors.white70 : Colors.black54;
     final hintColor = isDark ? Colors.white30 : Colors.black38;
 
     return Scaffold(

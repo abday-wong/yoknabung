@@ -18,9 +18,9 @@ class GoalDetailScreen extends StatefulWidget {
   final String goalId;
 
   const GoalDetailScreen({
-    Key? key,
+    super.key,
     required this.goalId,
-  }) : super(key: key);
+  });
 
   @override
   State<GoalDetailScreen> createState() => _GoalDetailScreenState();
@@ -153,21 +153,12 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
         final isGoalCompleted = percentage >= 100.0;
         final motivationalMsg = provider.getMotivationalMessage(goal);
 
-        DateTime? projectedDate = provider.getProjectedCompletion(goal);
-        String projectionStr = '-';
-        if (projectedDate != null) {
-          projectionStr = dateFormatter.format(projectedDate);
-        } else {
-          projectionStr = 'Nabung dulu untuk melihat proyeksi!';
-        }
-
         final isDark = provider.isDarkMode;
         final textColor = isDark ? Colors.white : const Color(0xFF111111);
         final borderColor = isDark ? Colors.white : const Color(0xFF111111);
         final cardBgColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
         final subtextColor = isDark ? Colors.white70 : Colors.black54;
         final subtextColorMuted = isDark ? Colors.white30 : Colors.black45;
-        final iconMutedColor = isDark ? Colors.white38 : Colors.black38;
 
         return Scaffold(
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -240,7 +231,7 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                     // Overview header card
                     NeoCard(
                       color: isGoalCompleted
-                          ? const Color(0xFF00C49A).withOpacity(isDark ? 0.25 : 0.15)
+                          ? const Color(0xFF00C49A).withValues(alpha: isDark ? 0.25 : 0.15)
                           : cardBgColor,
                       child: Column(
                         children: [
@@ -249,7 +240,7 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                             children: [
                               Container(
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF4361EE).withOpacity(0.15),
+                                  color: const Color(0xFF4361EE).withValues(alpha: 0.15),
                                   border: Border.all(color: borderColor, width: 1.5),
                                 ),
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
