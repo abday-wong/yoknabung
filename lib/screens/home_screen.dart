@@ -14,6 +14,7 @@ import '../widgets/logo_widget.dart';
 import 'goal_detail_screen.dart';
 import 'add_edit_goal_screen.dart';
 import 'add_edit_transaction_screen.dart';
+import 'feedback_screen.dart';
 
 class GlobalTransaction {
   final Transaction transaction;
@@ -438,6 +439,21 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         actions: [
+          IconButton(
+            icon: Icon(
+              Icons.feedback_outlined,
+              color: textColor,
+            ),
+            tooltip: 'Kritik & Saran',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const FeedbackScreen(),
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: Icon(
               Icons.notifications_active_outlined,
