@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -15,6 +16,7 @@ import '../widgets/roadmap_widget.dart';
 import '../widgets/savings_calculator_widget.dart';
 import 'add_edit_goal_screen.dart';
 import 'add_edit_transaction_screen.dart';
+import 'full_screen_image_viewer.dart';
 
 class GoalDetailScreen extends StatefulWidget {
   final String goalId;
@@ -61,10 +63,23 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
   }
 
   void _showTransactionOptions(BuildContext context, SavingsProvider provider, SavingGoal goal, Transaction tx) {
+    final bool hasProof = tx.proofImagePath != null;
     NeoDialog.showNeoBottomSheet(
       context: context,
       title: 'Opsi Transaksi',
       children: [
+        if (hasProof) ...[
+          NeoButton(
+            text: 'Lihat Bukti Foto',
+            color: const Color(0xFF00C49A),
+            icon: Icons.image,
+            onPressed: () {
+              Navigator.pop(context);
+              _showProofImageDialog(context, tx);
+            },
+          ),
+          const SizedBox(height: 12),
+        ],
         NeoButton(
           text: 'Edit Transaksi',
           color: const Color(0xFF4361EE),
@@ -93,6 +108,140 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
           },
         ),
       ],
+    );
+  }
+
+  void _showProofImageDialog(BuildContext context, Transaction tx) {
+    final String path = tx.proofImagePath!;
+    showDialog(
+      context: context,
+      barrierColor: Colors.black54,
+      builder: (context) {
+        final provider = Provider.of<SavingsProvider>(context, listen: false);
+        final isDark = provider.isDarkMode;
+        final textColor = isDark ? Colors.white : const Color(0xFF111111);
+        final borderColor = isDark ? Colors.white : const Color(0xFF111111);
+        final cardBgColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+
+        return Dialog(
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: cardBgColor,
+              border: Border.all(color: borderColor, width: 2.5),
+              boxShadow: [
+                BoxShadow(
+                  color: borderColor,
+                  offset: const Offset(5, 5),
+                  blurRadius: 0,
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Bukti Foto Nabung',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: textColor,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      color: textColor,
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context); // Close the dialog
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => FullScreenImageViewer(
+                          imagePath: path,
+                          title: 'Bukti Deposit: ${tx.note.isEmpty ? "Deposit" : tx.note}',
+                        ),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    height: 300,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: borderColor, width: 2),
+                    ),
+                    child: Stack(
+                      children: [
+                        Positioned.fill(
+                          child: ClipRRect(
+                            child: kIsWeb
+                                ? Image.network(
+                                    path,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) =>
+                                        Center(child: Icon(Icons.broken_image, size: 40, color: textColor)),
+                                  )
+                                : Image.file(
+                                    File(path),
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) =>
+                                        Center(child: Icon(Icons.broken_image, size: 40, color: textColor)),
+                                  ),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 8,
+                          right: 8,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFE500),
+                              border: Border.all(color: borderColor, width: 1.5),
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.fullscreen, size: 14, color: Color(0xFF111111)),
+                                const SizedBox(width: 4),
+                                const Text(
+                                  'Lihat Penuh',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w800,
+                                    color: Color(0xFF111111),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                NeoButton(
+                  text: 'Tutup',
+                  color: const Color(0xFFFFE500),
+                  textColor: const Color(0xFF111111),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -373,40 +522,109 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             if (goal.imageUrl != null) ...[
-                              Container(
-                                height: 220,
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: borderColor, width: 2.5),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: borderColor,
-                                      offset: const Offset(3, 3),
-                                    )
-                                  ],
-                                ),
-                                child: ClipRRect(
-                                  child: Image.file(
-                                    File(goal.imageUrl!),
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Center(
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Icon(Icons.broken_image, size: 40, color: textColor),
-                                            const SizedBox(height: 8),
-                                            Text(
-                                              'Gagal memuat gambar target',
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w800,
-                                                color: textColor,
-                                              ),
-                                            ),
-                                          ],
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => FullScreenImageViewer(
+                                        imagePath: goal.imageUrl!,
+                                        title: 'Foto Target: ${goal.title}',
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  height: 220,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: borderColor, width: 2.5),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: borderColor,
+                                        offset: const Offset(3, 3),
+                                      )
+                                    ],
+                                  ),
+                                  child: Stack(
+                                    children: [
+                                      Positioned.fill(
+                                        child: ClipRRect(
+                                          child: kIsWeb
+                                              ? Image.network(
+                                                  goal.imageUrl!,
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder: (context, error, stackTrace) {
+                                                    return Center(
+                                                      child: Column(
+                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                        children: [
+                                                          Icon(Icons.broken_image, size: 40, color: textColor),
+                                                          const SizedBox(height: 8),
+                                                          Text(
+                                                            'Gagal memuat gambar target',
+                                                            style: TextStyle(
+                                                              fontSize: 12,
+                                                              fontWeight: FontWeight.w800,
+                                                              color: textColor,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    );
+                                                  },
+                                                )
+                                              : Image.file(
+                                                  File(goal.imageUrl!),
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder: (context, error, stackTrace) {
+                                                    return Center(
+                                                      child: Column(
+                                                        mainAxisAlignment: MainAxisAlignment.center,
+                                                        children: [
+                                                          Icon(Icons.broken_image, size: 40, color: textColor),
+                                                          const SizedBox(height: 8),
+                                                          Text(
+                                                            'Gagal memuat gambar target',
+                                                            style: TextStyle(
+                                                              fontSize: 12,
+                                                              fontWeight: FontWeight.w800,
+                                                              color: textColor,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
                                         ),
-                                      );
-                                    },
+                                      ),
+                                      Positioned(
+                                        bottom: 8,
+                                        right: 8,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFFFE500),
+                                            border: Border.all(color: borderColor, width: 1.5),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const Icon(Icons.fullscreen, size: 14, color: Color(0xFF111111)),
+                                              const SizedBox(width: 4),
+                                              const Text(
+                                                'Lihat Penuh',
+                                                style: TextStyle(
+                                                  fontSize: 10,
+                                                  fontWeight: FontWeight.w800,
+                                                  color: Color(0xFF111111),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
@@ -605,13 +823,28 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              Text(
-                                                tx.note.isEmpty ? (isDeposit ? 'Deposit' : 'Penarikan') : tx.note,
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.w800,
-                                                  fontSize: 14,
-                                                  color: textColor,
-                                                ),
+                                              Row(
+                                                children: [
+                                                  Flexible(
+                                                    child: Text(
+                                                      tx.note.isEmpty ? (isDeposit ? 'Deposit' : 'Penarikan') : tx.note,
+                                                      overflow: TextOverflow.ellipsis,
+                                                      style: TextStyle(
+                                                        fontWeight: FontWeight.w800,
+                                                        fontSize: 14,
+                                                        color: textColor,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  if (tx.proofImagePath != null) ...[
+                                                    const SizedBox(width: 6),
+                                                    Icon(
+                                                      Icons.image,
+                                                      size: 14,
+                                                      color: isDark ? const Color(0xFF00C49A) : const Color(0xFF4361EE),
+                                                    ),
+                                                  ],
+                                                ],
                                               ),
                                               const SizedBox(height: 2),
                                               Text(

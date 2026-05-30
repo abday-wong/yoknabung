@@ -1,6 +1,10 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import '../models/transaction.dart';
@@ -53,9 +57,12 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
   late double _amount;
   late DateTime _date;
   late String _note;
+  String? _proofImagePath;
 
   late TextEditingController _amountController;
   late TextEditingController _noteController;
+
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -66,6 +73,7 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
     _amount = tx?.amount ?? 0.0;
     _date = tx?.date ?? DateTime.now();
     _note = tx?.note ?? '';
+    _proofImagePath = tx?.proofImagePath;
 
     String amountText = '';
     if (tx != null) {
@@ -88,6 +96,109 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
         _note = _noteController.text;
       });
     });
+  }
+
+  Future<String> _saveImagePermanently(String path) async {
+    if (kIsWeb) return path;
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final name = 'proof_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final newFile = File('${directory.path}/$name');
+      final savedFile = await File(path).copy(newFile.path);
+      return savedFile.path;
+    } catch (e) {
+      debugPrint('Failed to save image permanently: $e');
+      return path;
+    }
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: source,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+      if (image != null) {
+        final permanentPath = await _saveImagePermanently(image.path);
+        setState(() {
+          _proofImagePath = permanentPath;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+      if (mounted) {
+        NeoDialog.showNeoSnackbar(context, message: 'Gagal mengambil gambar');
+      }
+    }
+  }
+
+  void _showImageSourceActionSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        final provider = Provider.of<SavingsProvider>(context, listen: false);
+        final isDark = provider.isDarkMode;
+        final textColor = isDark ? Colors.white : const Color(0xFF111111);
+        final cardBgColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+        final borderColor = isDark ? Colors.white : const Color(0xFF111111);
+
+        return Container(
+          margin: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: cardBgColor,
+            border: Border.all(color: borderColor, width: 2.5),
+            boxShadow: [BoxShadow(color: borderColor, offset: const Offset(4, 4))],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                decoration: BoxDecoration(
+                  border: Border(bottom: BorderSide(color: borderColor, width: 2)),
+                ),
+                width: double.infinity,
+                alignment: Alignment.center,
+                child: Text(
+                  'Pilih Sumber Foto Bukti',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 16,
+                    color: textColor,
+                  ),
+                ),
+              ),
+              ListTile(
+                leading: Icon(Icons.camera_alt, color: textColor),
+                title: Text(
+                  'Kamera',
+                  style: TextStyle(fontWeight: FontWeight.w800, color: textColor),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.camera);
+                },
+              ),
+              Container(height: 2, color: borderColor),
+              ListTile(
+                leading: Icon(Icons.photo_library, color: textColor),
+                title: Text(
+                  'Galeri Foto',
+                  style: TextStyle(fontWeight: FontWeight.w800, color: textColor),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -149,6 +260,11 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
       return;
     }
 
+    if (_type == TransactionType.deposit && _proofImagePath == null) {
+      NeoDialog.showNeoSnackbar(context, message: 'Wajib melampirkan bukti foto untuk transaksi deposit!');
+      return;
+    }
+
     final provider = Provider.of<SavingsProvider>(context, listen: false);
     final goal = provider.goals.firstWhere((g) => g.id == widget.goalId);
 
@@ -179,6 +295,7 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
         date: _date,
         note: _note.trim().isEmpty ? (_type == TransactionType.deposit ? 'Setoran' : 'Penarikan') : _note,
         type: _type,
+        proofImagePath: _proofImagePath,
       );
       provider.addTransaction(widget.goalId, newTx);
       Navigator.pop(context);
@@ -190,6 +307,7 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
         date: _date,
         note: _note.trim().isEmpty ? (_type == TransactionType.deposit ? 'Setoran' : 'Penarikan') : _note,
         type: _type,
+        proofImagePath: _proofImagePath,
       );
       provider.updateTransaction(widget.goalId, updatedTx);
       Navigator.pop(context);
@@ -404,6 +522,89 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
                   ),
                 ),
               ),
+              if (_type == TransactionType.deposit) ...[
+                const SizedBox(height: 20),
+                Text(
+                  'Bukti Foto Nabung (Wajib)',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textColor),
+                ),
+                const SizedBox(height: 8),
+                GestureDetector(
+                  onTap: () => _showImageSourceActionSheet(context),
+                  child: Container(
+                    height: 180,
+                    decoration: BoxDecoration(
+                      color: cardBgColor,
+                      border: Border.all(color: borderColor, width: 2.5),
+                      boxShadow: [
+                        BoxShadow(
+                          color: borderColor,
+                          offset: const Offset(4, 4),
+                          blurRadius: 0,
+                        )
+                      ],
+                    ),
+                    child: _proofImagePath == null
+                        ? Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.add_a_photo_outlined,
+                                size: 40,
+                                color: textColor,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Ambil Foto atau Pilih dari Galeri',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 13,
+                                  color: textColor,
+                                ),
+                              ),
+                            ],
+                          )
+                        : Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              kIsWeb
+                                  ? Image.network(
+                                      _proofImagePath!,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Image.file(
+                                      File(_proofImagePath!),
+                                      fit: BoxFit.cover,
+                                    ),
+                              Positioned(
+                                top: 8,
+                                right: 8,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _proofImagePath = null;
+                                    });
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFF5733),
+                                      shape: BoxShape.rectangle,
+                                      border: Border.all(color: borderColor, width: 2),
+                                    ),
+                                    padding: const EdgeInsets.all(4),
+                                    child: const Icon(
+                                      Icons.close,
+                                      color: Colors.white,
+                                      size: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                  ),
+                ),
+              ],
               const SizedBox(height: 20),
 
               Text(

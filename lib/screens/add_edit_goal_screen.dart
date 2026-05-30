@@ -844,18 +844,31 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
                             boxShadow: [BoxShadow(color: borderColor, offset: const Offset(4, 4))],
                           ),
                           child: ClipRRect(
-                            child: Image.file(
-                              File(_imageUrl!),
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Center(
-                                  child: Text(
-                                    'Gagal memuat gambar',
-                                    style: TextStyle(fontWeight: FontWeight.w800, color: textColor),
+                            child: kIsWeb
+                                ? Image.network(
+                                    _imageUrl!,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Center(
+                                        child: Text(
+                                          'Gagal memuat gambar',
+                                          style: TextStyle(fontWeight: FontWeight.w800, color: textColor),
+                                        ),
+                                      );
+                                    },
+                                  )
+                                : Image.file(
+                                    File(_imageUrl!),
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Center(
+                                        child: Text(
+                                          'Gagal memuat gambar',
+                                          style: TextStyle(fontWeight: FontWeight.w800, color: textColor),
+                                        ),
+                                      );
+                                    },
                                   ),
-                                );
-                              },
-                            ),
                           ),
                         ),
                         const SizedBox(height: 12),

@@ -189,5 +189,26 @@ void main() {
       expect(copiedWithValues.targetUrl, 'https://new.example.com');
       expect(copiedWithValues.plannedDailySavings, 20000.0);
     });
+
+    test('Transaction supports proofImagePath serialization and deserialization', () {
+      final tx = Transaction(
+        id: 't_proof',
+        amount: 50000.0,
+        date: DateTime.parse('2026-05-30T12:00:00Z'),
+        note: 'Setoran dengan bukti',
+        type: TransactionType.deposit,
+        proofImagePath: '/path/to/proof.jpg',
+      );
+
+      final json = tx.toJson();
+      expect(json['proofImagePath'], '/path/to/proof.jpg');
+
+      final fromJson = Transaction.fromJson(json);
+      expect(fromJson.proofImagePath, '/path/to/proof.jpg');
+      expect(fromJson.id, 't_proof');
+      expect(fromJson.amount, 50000.0);
+      expect(fromJson.note, 'Setoran dengan bukti');
+      expect(fromJson.type, TransactionType.deposit);
+    });
   });
 }

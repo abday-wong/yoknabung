@@ -9,6 +9,7 @@ class Transaction {
   final DateTime date;
   final String note;
   final TransactionType type;
+  final String? proofImagePath;
 
   Transaction({
     required this.id,
@@ -16,6 +17,7 @@ class Transaction {
     required this.date,
     required this.note,
     required this.type,
+    this.proofImagePath,
   });
 
   Map<String, dynamic> toJson() {
@@ -25,6 +27,7 @@ class Transaction {
       'date': date.toIso8601String(),
       'note': note,
       'type': type.name,
+      'proofImagePath': proofImagePath,
     };
   }
 
@@ -35,6 +38,7 @@ class Transaction {
       date: DateTime.parse(json['date'] as String),
       note: json['note'] as String,
       type: TransactionType.values.byName(json['type'] as String),
+      proofImagePath: json['proofImagePath'] as String?,
     );
   }
 }
