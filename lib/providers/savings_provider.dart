@@ -115,27 +115,27 @@ class SavingsProvider with ChangeNotifier {
 
   int getGlobalLevel() {
     final double exp = getGlobalExp();
-    if (exp < 50000) return 1;
-    if (exp < 200000) return 2;
-    if (exp < 1000000) return 3;
-    if (exp < 5000000) return 4;
+    if (exp < 500000) return 1;
+    if (exp < 2000000) return 2;
+    if (exp < 10000000) return 3;
+    if (exp < 20000000) return 4;
     return 5;
   }
 
   double getMinExpForLevel(int level) {
     if (level <= 1) return 0;
-    if (level == 2) return 50000;
-    if (level == 3) return 200000;
-    if (level == 4) return 1000000;
-    return 5000000;
+    if (level == 2) return 500000;
+    if (level == 3) return 2000000;
+    if (level == 4) return 10000000;
+    return 20000000;
   }
 
   double getMaxExpForLevel(int level) {
-    if (level <= 1) return 50000;
-    if (level == 2) return 200000;
-    if (level == 3) return 1000000;
-    if (level == 4) return 5000000;
-    return 5000000;
+    if (level <= 1) return 500000;
+    if (level == 2) return 2000000;
+    if (level == 3) return 10000000;
+    if (level == 4) return 20000000;
+    return 20000000;
   }
 
   String getLevelTitle(int level) {

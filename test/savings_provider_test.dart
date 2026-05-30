@@ -238,7 +238,7 @@ void main() {
 
       final txToday = Transaction(
         id: 'tx_today',
-        amount: 10000,
+        amount: 100000,
         date: now,
         note: 'Hari ini',
         type: TransactionType.deposit,
@@ -250,7 +250,7 @@ void main() {
 
       final txYesterday = Transaction(
         id: 'tx_yesterday',
-        amount: 10000,
+        amount: 100000,
         date: now.subtract(const Duration(days: 1)),
         note: 'Kemarin',
         type: TransactionType.deposit,
@@ -264,7 +264,7 @@ void main() {
           'test_g',
           Transaction(
             id: 'tx_extra_$i',
-            amount: 10000,
+            amount: 100000,
             date: now.subtract(Duration(days: i + 2)),
             note: 'Extra',
             type: TransactionType.deposit,
