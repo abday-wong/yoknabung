@@ -54,7 +54,6 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         Uri.parse('https://api.emailjs.com/api/v1.0/email/send'),
         headers: {
           'Content-Type': 'application/json',
-          'origin': 'http://localhost',
         },
         body: jsonEncode({
           'service_id': 'service_zjya8wd',
