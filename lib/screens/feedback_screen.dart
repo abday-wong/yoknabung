@@ -1,5 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import '../providers/savings_provider.dart';
 import '../widgets/neo_button.dart';
@@ -48,38 +49,47 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     final category = _selectedCategory;
     final message = _messageController.text.trim();
 
-    final subject = Uri.encodeComponent(
-      '[YokNabung] $category dari ${name.isNotEmpty ? name : "Pengguna"}',
-    );
-    final body = Uri.encodeComponent(
-      'Nama: ${name.isNotEmpty ? name : "Pengguna Anonim"}\n'
-      'Email: ${email.isNotEmpty ? email : "Tidak disediakan"}\n'
-      'Kategori: $category\n'
-      '─────────────────────\n\n'
-      '$message',
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('https://api.emailjs.com/api/v1.0/email/send'),
+        headers: {
+          'Content-Type': 'application/json',
+          'origin': 'http://localhost',
+        },
+        body: jsonEncode({
+          'service_id': 'service_zjya8wd',
+          'template_id': 'template_z59fikv',
+          'user_id': 'Sy326-2LDmKTEptT_',
+          'template_params': {
+            'subject': '[YokNabung] $category dari ${name.isNotEmpty ? name : "Pengguna"}',
+            'from_name': name.isNotEmpty ? name : 'Pengguna Anonim',
+            'from_email': email.isNotEmpty ? email : 'tidak_disediakan@yoknabung.app',
+            'category': category,
+            'message': message,
+          },
+        }),
+      ).timeout(const Duration(seconds: 15));
 
-    final mailtoUri = Uri.parse(
-      'mailto:abday.hafidz23@gmail.com?subject=$subject&body=$body',
-    );
+      setState(() => _isSending = false);
 
-    setState(() => _isSending = false);
-
-    if (await canLaunchUrl(mailtoUri)) {
-      await launchUrl(mailtoUri);
-      if (mounted) {
-        NeoDialog.showNeoSnackbar(
-          context,
-          message: 'Aplikasi email dibuka. Tinggal klik Kirim ya!',
-        );
-        Navigator.pop(context);
+      if (response.statusCode == 200) {
+        if (mounted) {
+          NeoDialog.showNeoSnackbar(
+            context,
+            message: 'Terima kasih! Pengaduan Anda berhasil dikirim.',
+          );
+          Navigator.pop(context);
+        }
+      } else {
+        if (mounted) {
+          _showErrorDialog('Pengiriman gagal (kode: ${response.statusCode}). Coba lagi.');
+        }
       }
-    } else {
+    } catch (e) {
+      setState(() => _isSending = false);
       if (mounted) {
-        _showErrorDialog(
-          'Tidak ada aplikasi email yang terinstal di perangkat Anda. '
-          'Silakan instal Gmail atau aplikasi email lainnya terlebih dahulu.',
-        );
+        final errMsg = e.toString();
+        _showErrorDialog('Gagal terhubung. Detail: ${errMsg.length > 120 ? errMsg.substring(0, 120) : errMsg}');
       }
     }
   }
