@@ -1,6 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../providers/savings_provider.dart';
 import '../widgets/neo_button.dart';
 import '../widgets/neo_card.dart';
@@ -20,6 +21,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   final _messageController = TextEditingController();
 
   String _selectedCategory = 'Kritik & Saran';
+  bool _isSending = false;
 
   final List<String> _categories = [
     'Kritik & Saran',
@@ -40,57 +42,66 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   Future<void> _submitFeedback() async {
     if (!_formKey.currentState!.validate()) return;
 
+    setState(() {
+      _isSending = true;
+    });
+
     final name = _nameController.text.trim();
     final email = _emailController.text.trim();
     final category = _selectedCategory;
     final message = _messageController.text.trim();
 
-    final StringBuffer bodyBuffer = StringBuffer();
-    bodyBuffer.writeln('=== PENGADUAN & SARAN YOKNABUNG ===');
-    bodyBuffer.writeln('Kategori: $category');
-    bodyBuffer.writeln('Nama Pengirim: ${name.isNotEmpty ? name : 'Pengguna Anonim'}');
-    bodyBuffer.writeln('Email Pengirim: ${email.isNotEmpty ? email : 'Tidak disediakan'}');
-    bodyBuffer.writeln('-----------------------------------');
-    bodyBuffer.writeln('Pesan:');
-    bodyBuffer.writeln(message);
-    bodyBuffer.writeln('-----------------------------------');
-
-    final Uri emailLaunchUri = Uri(
-      scheme: 'mailto',
-      path: 'abday.hafidz23@gmail.com',
-      queryParameters: {
-        'subject': '[YokNabung] $category - ${name.isNotEmpty ? name : 'Pengguna'}',
-        'body': bodyBuffer.toString(),
-      },
-    );
+    // Payload yang akan dikirimkan ke FormSubmit.co
+    final payload = {
+      'Nama': name.isNotEmpty ? name : 'Pengguna Anonim',
+      'Email': email.isNotEmpty ? email : 'Tidak disediakan',
+      'Kategori': category,
+      'Pesan': message,
+      '_subject': '[YokNabung] $category dari ${name.isNotEmpty ? name : 'Pengguna'}',
+    };
 
     try {
-      if (await canLaunchUrl(emailLaunchUri)) {
-        await launchUrl(emailLaunchUri, mode: LaunchMode.externalApplication);
+      final response = await http.post(
+        Uri.parse('https://formsubmit.co/ajax/abday.hafidz23@gmail.com'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode(payload),
+      ).timeout(const Duration(seconds: 10));
+
+      setState(() {
+        _isSending = false;
+      });
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
         if (mounted) {
           NeoDialog.showNeoSnackbar(
             context,
-            message: 'Membuka aplikasi email Anda...',
+            message: 'Terima kasih! Pengaduan Anda berhasil dikirim langsung.',
           );
           Navigator.pop(context);
         }
       } else {
         if (mounted) {
-          _showManualEmailDialog();
+          _showErrorDialog('Gagal mengirim pengaduan. Kode error dari server: ${response.statusCode}');
         }
       }
     } catch (e) {
+      setState(() {
+        _isSending = false;
+      });
       if (mounted) {
-        _showManualEmailDialog();
+        _showErrorDialog('Gagal terhubung ke server. Pastikan perangkat Anda aktif internetnya.');
       }
     }
   }
 
-  void _showManualEmailDialog() {
+  void _showErrorDialog(String message) {
     NeoDialog.showNeoDialog(
       context: context,
-      title: 'Aplikasi Email Tidak Ditemukan',
-      body: 'Gagal membuka aplikasi email secara otomatis. Silakan kirimkan kritik & saran Anda secara manual ke email:\n\nabday.hafidz23@gmail.com',
+      title: 'Pengiriman Gagal',
+      body: message,
       primaryLabel: 'Tutup',
       primaryColor: const Color(0xFFFF5733),
       onPrimaryPressed: () {
@@ -155,7 +166,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'Suara Anda sangat berharga bagi kami. Tulis kritik, saran, laporan kendala, atau pengaduan Anda di bawah ini dan kirimkan ke email pengembang.',
+                      'Suara Anda sangat berharga bagi kami. Tulis kritik, saran, laporan kendala, atau pengaduan Anda di bawah ini untuk dikirim langsung ke email pengembang.',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
@@ -280,12 +291,21 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
               ),
               const SizedBox(height: 32),
 
-              NeoButton(
-                text: 'Kirim via Email',
-                color: const Color(0xFF00C49A),
-                icon: Icons.mail_outline,
-                onPressed: _submitFeedback,
-              ),
+              _isSending
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF00C49A)),
+                        ),
+                      ),
+                    )
+                  : NeoButton(
+                      text: 'Kirim Pengaduan',
+                      color: const Color(0xFF00C49A),
+                      icon: Icons.send,
+                      onPressed: _submitFeedback,
+                    ),
               const SizedBox(height: 32),
             ],
           ),
