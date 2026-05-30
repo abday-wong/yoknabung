@@ -62,7 +62,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
           'user_id': 'Sy326-2LDmKTEptT_',
           'template_params': {
             'subject': '[YokNabung] $category dari ${name.isNotEmpty ? name : "Pengguna"}',
+            'name': name.isNotEmpty ? name : 'Pengguna Anonim',
             'from_name': name.isNotEmpty ? name : 'Pengguna Anonim',
+            'email': email.isNotEmpty ? email : 'tidak_disediakan@yoknabung.app',
             'from_email': email.isNotEmpty ? email : 'tidak_disediakan@yoknabung.app',
             'category': category,
             'message': message,
@@ -82,7 +84,8 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         }
       } else {
         if (mounted) {
-          _showErrorDialog('Pengiriman gagal (kode: ${response.statusCode}). Coba lagi.');
+          final body = response.body;
+          _showErrorDialog('Pengiriman gagal (kode: ${response.statusCode}).\n\nDetail: $body');
         }
       }
     } catch (e) {
