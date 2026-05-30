@@ -1,6 +1,5 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
 import '../providers/savings_provider.dart';
 import '../widgets/neo_button.dart';
@@ -42,58 +41,45 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   Future<void> _submitFeedback() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() {
-      _isSending = true;
-    });
+    setState(() => _isSending = true);
 
     final name = _nameController.text.trim();
     final email = _emailController.text.trim();
     final category = _selectedCategory;
     final message = _messageController.text.trim();
 
-    try {
-      final response = await http.post(
-        Uri.parse('https://formsubmit.co/ajax/abday.hafidz23@gmail.com'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'User-Agent': 'YokNabung/2.0.0 Android',
-        },
-        body: jsonEncode({
-          'Nama': name.isNotEmpty ? name : 'Pengguna Anonim',
-          'Email': email.isNotEmpty ? email : 'Tidak disediakan',
-          'Kategori': category,
-          'Pesan': message,
-          '_subject': '[YokNabung] $category dari ${name.isNotEmpty ? name : "Pengguna"}',
-          '_captcha': 'false',
-          '_replyto': email.isNotEmpty ? email : 'no-reply@yoknabung.app',
-        }),
-      ).timeout(const Duration(seconds: 15));
+    final subject = Uri.encodeComponent(
+      '[YokNabung] $category dari ${name.isNotEmpty ? name : "Pengguna"}',
+    );
+    final body = Uri.encodeComponent(
+      'Nama: ${name.isNotEmpty ? name : "Pengguna Anonim"}\n'
+      'Email: ${email.isNotEmpty ? email : "Tidak disediakan"}\n'
+      'Kategori: $category\n'
+      '─────────────────────\n\n'
+      '$message',
+    );
 
-      setState(() {
-        _isSending = false;
-      });
+    final mailtoUri = Uri.parse(
+      'mailto:abday.hafidz23@gmail.com?subject=$subject&body=$body',
+    );
 
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        if (mounted) {
-          NeoDialog.showNeoSnackbar(
-            context,
-            message: 'Terima kasih! Pengaduan Anda berhasil dikirim.',
-          );
-          Navigator.pop(context);
-        }
-      } else {
-        if (mounted) {
-          _showErrorDialog('Server menolak pengiriman (kode: ${response.statusCode}). Coba lagi dalam beberapa saat.');
-        }
-      }
-    } catch (e) {
-      setState(() {
-        _isSending = false;
-      });
+    setState(() => _isSending = false);
+
+    if (await canLaunchUrl(mailtoUri)) {
+      await launchUrl(mailtoUri);
       if (mounted) {
-        final errMsg = e.toString();
-        _showErrorDialog('Gagal terhubung ke server. Detail: ${errMsg.length > 120 ? errMsg.substring(0, 120) : errMsg}');
+        NeoDialog.showNeoSnackbar(
+          context,
+          message: 'Aplikasi email dibuka. Tinggal klik Kirim ya!',
+        );
+        Navigator.pop(context);
+      }
+    } else {
+      if (mounted) {
+        _showErrorDialog(
+          'Tidak ada aplikasi email yang terinstal di perangkat Anda. '
+          'Silakan instal Gmail atau aplikasi email lainnya terlebih dahulu.',
+        );
       }
     }
   }
