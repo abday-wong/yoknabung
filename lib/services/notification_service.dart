@@ -64,19 +64,22 @@ class NotificationService {
   }) async {
     await cancelReminder();
 
-    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-    tz.TZDateTime scheduledDate = tz.TZDateTime(
-      tz.local,
-      now.year,
-      now.month,
-      now.day,
+    final DateTime nowLocal = DateTime.now();
+    DateTime scheduledLocal = DateTime(
+      nowLocal.year,
+      nowLocal.month,
+      nowLocal.day,
       hour,
       minute,
     );
 
-    if (scheduledDate.isBefore(now)) {
-      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    if (scheduledLocal.isBefore(nowLocal)) {
+      scheduledLocal = scheduledLocal.add(const Duration(days: 1));
     }
+
+    final DateTime scheduledUtc = scheduledLocal.toUtc();
+    final tz.Location utcLocation = tz.getLocation('UTC');
+    final tz.TZDateTime scheduledDate = tz.TZDateTime.from(scheduledUtc, utcLocation);
 
     const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
       'daily_savings_reminder',
