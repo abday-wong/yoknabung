@@ -805,7 +805,7 @@ class _MilestoneCelebrationDialogState extends State<MilestoneCelebrationDialog>
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      isFinished ? '🏆 GOAL TERCAPAI!' : '🎉 MILESTONE BARU!',
+                      isFinished ? '🏆 TARGET TERCAPAI!' : '🎉 SETENGAH JALAN!',
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 22,
@@ -817,8 +817,8 @@ class _MilestoneCelebrationDialogState extends State<MilestoneCelebrationDialog>
                     const SizedBox(height: 16),
                     Text(
                       isFinished
-                          ? 'Selamat! Kamu telah berhasil menabung sebesar 100% dari target tabunganmu. Luar biasa!'
-                          : 'Mantap! Tabunganmu sekarang telah terkumpul lebih dari ${widget.percentage.toInt()}% dari target!',
+                          ? 'Selamat! Tabungan lu udah kekumpul 100%. Perjuangan lu membuahkan hasil, sekarang saatnya beli barang impian lu! 🥳'
+                          : 'Mantap! Tabungan lu udah keisi ${widget.percentage.toInt()}%. Tetap konsisten ya, dikit lagi target lu tercapai! 💪',
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 14,
@@ -842,7 +842,7 @@ class _MilestoneCelebrationDialogState extends State<MilestoneCelebrationDialog>
                     ),
                     const SizedBox(height: 28),
                     NeoButton(
-                      text: isFinished ? 'Keren, Selesai! 🏁' : 'Lanjutkan Perjuangan! 💪',
+                      text: isFinished ? 'Sip, Selesai! 🏁' : 'Lanjut Nabung! 🚀',
                       color: const Color(0xFF111111),
                       textColor: Colors.white,
                       onPressed: widget.onDismiss,
