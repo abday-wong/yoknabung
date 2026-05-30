@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -51,34 +52,45 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     final message = _messageController.text.trim();
 
     // Dapatkan data perangkat & aplikasi untuk template email
-    final platform = Platform.isAndroid ? 'Android' : Platform.isIOS ? 'iOS' : 'Web';
+    final platform = kIsWeb
+        ? 'Web'
+        : Platform.isAndroid
+            ? 'Android'
+            : Platform.isIOS
+                ? 'iOS'
+                : 'Unknown';
     const appVersion = '2.0.1+2';
     final sentAt = DateTime.now().toLocal().toString().split('.')[0];
 
     try {
-      final response = await http.post(
-        Uri.parse('https://api.emailjs.com/api/v1.0/email/send'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'service_id': 'service_zjya8wd',
-          'template_id': 'template_f8gxh8a',
-          'user_id': 'Sy326-2LDmKTEptT_',
-          'template_params': {
-            'subject': '[YokNabung] $category dari ${name.isNotEmpty ? name : "Pengguna"}',
-            'name': name.isNotEmpty ? name : 'Pengguna Anonim',
-            'from_name': name.isNotEmpty ? name : 'Pengguna Anonim',
-            'email': email.isNotEmpty ? email : 'tidak_disediakan@yoknabung.app',
-            'from_email': email.isNotEmpty ? email : 'tidak_disediakan@yoknabung.app',
-            'category': category,
-            'message': message,
-            'platform': platform,
-            'app_version': appVersion,
-            'sent_at': sentAt,
-          },
-        }),
-      ).timeout(const Duration(seconds: 15));
+      final response = await http
+          .post(
+            Uri.parse('https://api.emailjs.com/api/v1.0/email/send'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'service_id': 'service_zjya8wd',
+              'template_id': 'template_f8gxh8a',
+              'user_id': 'Sy326-2LDmKTEptT_',
+              'template_params': {
+                'subject':
+                    '[YokNabung] $category dari ${name.isNotEmpty ? name : "Pengguna"}',
+                'name': name.isNotEmpty ? name : 'Pengguna Anonim',
+                'from_name': name.isNotEmpty ? name : 'Pengguna Anonim',
+                'email': email.isNotEmpty
+                    ? email
+                    : 'tidak_disediakan@yoknabung.app',
+                'from_email': email.isNotEmpty
+                    ? email
+                    : 'tidak_disediakan@yoknabung.app',
+                'category': category,
+                'message': message,
+                'platform': platform,
+                'app_version': appVersion,
+                'sent_at': sentAt,
+              },
+            }),
+          )
+          .timeout(const Duration(seconds: 15));
 
       setState(() => _isSending = false);
 
@@ -93,14 +105,18 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       } else {
         if (mounted) {
           final body = response.body;
-          _showErrorDialog('Pengiriman gagal (kode: ${response.statusCode}).\n\nDetail: $body');
+          _showErrorDialog(
+            'Pengiriman gagal (kode: ${response.statusCode}).\n\nDetail: $body',
+          );
         }
       }
     } catch (e) {
       setState(() => _isSending = false);
       if (mounted) {
         final errMsg = e.toString();
-        _showErrorDialog('Gagal terhubung. Detail: ${errMsg.length > 120 ? errMsg.substring(0, 120) : errMsg}');
+        _showErrorDialog(
+          'Gagal terhubung. Detail: ${errMsg.length > 120 ? errMsg.substring(0, 120) : errMsg}',
+        );
       }
     }
   }
@@ -128,7 +144,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     final hintColor = isDark ? Colors.white30 : Colors.black38;
 
     return Scaffold(
-      backgroundColor: isDark ? const Color(0xFF121212) : const Color(0xFFFFFDE7),
+      backgroundColor: isDark
+          ? const Color(0xFF121212)
+          : const Color(0xFFFFFDE7),
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
@@ -139,10 +157,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
         iconTheme: IconThemeData(color: textColor),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(2.5),
-          child: Container(
-            color: borderColor,
-            height: 2.5,
-          ),
+          child: Container(color: borderColor, height: 2.5),
         ),
       ),
       body: SingleChildScrollView(
@@ -160,7 +175,11 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.feedback, color: const Color(0xFF111111), size: 24),
+                        Icon(
+                          Icons.feedback,
+                          color: const Color(0xFF111111),
+                          size: 24,
+                        ),
                         const SizedBox(width: 8),
                         const Text(
                           'Hubungi Kami',
@@ -189,7 +208,11 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
               Text(
                 'Nama Lengkap (Opsional)',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textColor),
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: textColor,
+                ),
               ),
               const SizedBox(height: 8),
               Container(
@@ -199,11 +222,17 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                 ),
                 child: TextFormField(
                   controller: _nameController,
-                  style: TextStyle(fontWeight: FontWeight.w500, color: textColor),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    color: textColor,
+                  ),
                   decoration: InputDecoration(
                     hintText: 'Nama Anda...',
                     hintStyle: TextStyle(color: hintColor),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     border: InputBorder.none,
                   ),
                 ),
@@ -212,7 +241,11 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
               Text(
                 'Alamat Email (Opsional)',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textColor),
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: textColor,
+                ),
               ),
               const SizedBox(height: 8),
               Container(
@@ -223,11 +256,17 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                 child: TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  style: TextStyle(fontWeight: FontWeight.w500, color: textColor),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    color: textColor,
+                  ),
                   decoration: InputDecoration(
                     hintText: 'Email Anda...',
                     hintStyle: TextStyle(color: hintColor),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     border: InputBorder.none,
                   ),
                 ),
@@ -236,7 +275,11 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
               Text(
                 'Kategori Pengaduan',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textColor),
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: textColor,
+                ),
               ),
               const SizedBox(height: 8),
               Container(
@@ -250,7 +293,11 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                     value: _selectedCategory,
                     dropdownColor: cardBgColor,
                     isExpanded: true,
-                    style: TextStyle(fontWeight: FontWeight.w800, color: textColor, fontSize: 14),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      color: textColor,
+                      fontSize: 14,
+                    ),
                     onChanged: (String? newValue) {
                       if (newValue != null) {
                         setState(() {
@@ -258,7 +305,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                         });
                       }
                     },
-                    items: _categories.map<DropdownMenuItem<String>>((String value) {
+                    items: _categories.map<DropdownMenuItem<String>>((
+                      String value,
+                    ) {
                       return DropdownMenuItem<String>(
                         value: value,
                         child: Text(value),
@@ -271,7 +320,11 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
               Text(
                 'Isi Pengaduan / Kritik / Saran',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textColor),
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                  color: textColor,
+                ),
               ),
               const SizedBox(height: 8),
               Container(
@@ -282,7 +335,10 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                 child: TextFormField(
                   controller: _messageController,
                   maxLines: 6,
-                  style: TextStyle(fontWeight: FontWeight.w500, color: textColor),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    color: textColor,
+                  ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return 'Isi pengaduan tidak boleh kosong';
@@ -290,9 +346,13 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                     return null;
                   },
                   decoration: InputDecoration(
-                    hintText: 'Tulis kritik, saran, laporan bug, atau pengaduan Anda di sini...',
+                    hintText:
+                        'Tulis kritik, saran, laporan bug, atau pengaduan Anda di sini...',
                     hintStyle: TextStyle(color: hintColor),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     border: InputBorder.none,
                   ),
                 ),
@@ -304,7 +364,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                       child: Padding(
                         padding: EdgeInsets.all(8.0),
                         child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF00C49A)),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Color(0xFF00C49A),
+                          ),
                         ),
                       ),
                     )
