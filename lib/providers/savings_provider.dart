@@ -20,8 +20,8 @@ class SavingsProvider with ChangeNotifier {
 
   List<SavingGoal> get goals => _goals;
   bool get isLoading => _isLoading;
-  bool get isDarkMode => _isDarkMode;
-  bool get isReminderEnabled => _isReminderEnabled;
+    bool get isDarkMode => _isDarkMode;
+    bool get isReminderEnabled => _isReminderEnabled;
   int get reminderHour => _reminderHour;
   int get reminderMinute => _reminderMinute;
   String get reminderMessage => _reminderMessage;
