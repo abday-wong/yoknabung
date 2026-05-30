@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
@@ -50,6 +52,8 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
   late TextEditingController _titleController;
   late TextEditingController _amountController;
   late TextEditingController _notesController;
+  late TextEditingController _targetUrlController;
+  String? _imageUrl;
 
   @override
   void initState() {
@@ -60,6 +64,8 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
       text: goal != null ? goal.targetAmount.toInt().toString() : '',
     );
     _notesController = TextEditingController(text: goal?.notes ?? '');
+    _targetUrlController = TextEditingController(text: goal?.targetUrl ?? '');
+    _imageUrl = goal?.imageUrl;
 
     _title = goal?.title ?? '';
     _targetAmount = goal?.targetAmount ?? 0.0;
@@ -132,6 +138,7 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
     _amountController.dispose();
     _notesController.dispose();
     _dailySavingsController.dispose();
+    _targetUrlController.dispose();
     super.dispose();
   }
 
@@ -185,6 +192,56 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
     }
   }
 
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? pickedFile = await picker.pickImage(
+        source: source,
+        maxWidth: 1000,
+        maxHeight: 1000,
+        imageQuality: 85,
+      );
+      if (pickedFile != null) {
+        setState(() {
+          _imageUrl = pickedFile.path;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+      if (mounted) {
+        NeoDialog.showNeoSnackbar(context, message: 'Gagal mengambil gambar: $e');
+      }
+    }
+  }
+
+  void _showImageSourceOptions() {
+    NeoDialog.showNeoBottomSheet(
+      context: context,
+      title: 'Pilih Sumber Foto',
+      children: [
+        NeoButton(
+          text: 'Kamera',
+          color: const Color(0xFFFFE500),
+          icon: Icons.camera_alt,
+          onPressed: () {
+            Navigator.pop(context);
+            _pickImage(ImageSource.camera);
+          },
+        ),
+        const SizedBox(height: 12),
+        NeoButton(
+          text: 'Galeri',
+          color: const Color(0xFF00C49A),
+          icon: Icons.photo_library,
+          onPressed: () {
+            Navigator.pop(context);
+            _pickImage(ImageSource.gallery);
+          },
+        ),
+      ],
+    );
+  }
+
   void _saveGoal() {
     if (!_formKey.currentState!.validate()) return;
 
@@ -200,6 +257,8 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
 
     final provider = Provider.of<SavingsProvider>(context, listen: false);
 
+    final cleanUrl = _targetUrlController.text.trim().isEmpty ? null : _targetUrlController.text.trim();
+
     if (widget.existingGoal == null) {
       final goalId = const Uuid().v4();
       final newGoal = SavingGoal(
@@ -213,6 +272,8 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
         milestones: [],
         transactions: [],
         notes: _notes?.isEmpty == true ? null : _notes,
+        imageUrl: _imageUrl,
+        targetUrl: cleanUrl,
       );
       provider.addGoal(newGoal);
       Navigator.pop(context);
@@ -226,6 +287,10 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
         targetDate: _targetDate,
         category: _category,
         notes: _notes?.isEmpty == true ? null : _notes,
+        imageUrl: _imageUrl,
+        targetUrl: cleanUrl,
+        clearImage: _imageUrl == null,
+        clearUrl: cleanUrl == null,
       );
       provider.updateGoal(updatedGoal);
       Navigator.pop(context);
@@ -256,6 +321,8 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
       milestones: [],
       transactions: widget.existingGoal?.transactions ?? [],
       notes: _notes,
+      imageUrl: _imageUrl,
+      targetUrl: _targetUrlController.text.trim().isEmpty ? null : _targetUrlController.text.trim(),
     );
 
     return Scaffold(
@@ -688,6 +755,113 @@ class _AddEditGoalScreenState extends State<AddEditGoalScreen> {
                   ),
                 ),
               ),
+              const SizedBox(height: 20),
+
+              Text(
+                'Link Web Target (Opsional)',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textColor),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                decoration: BoxDecoration(
+                  color: cardBgColor,
+                  border: Border.all(color: borderColor, width: 2.5),
+                ),
+                child: TextFormField(
+                  controller: _targetUrlController,
+                  keyboardType: TextInputType.url,
+                  style: TextStyle(fontWeight: FontWeight.w500, color: textColor),
+                  decoration: InputDecoration(
+                    hintText: 'Masukkan link referensi barang, misal Tokopedia, Shopee...',
+                    hintStyle: TextStyle(color: hintColor),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              Text(
+                'Foto Target (Opsional)',
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textColor),
+              ),
+              const SizedBox(height: 8),
+              _imageUrl == null
+                  ? GestureDetector(
+                      onTap: _showImageSourceOptions,
+                      child: Container(
+                        height: 120,
+                        decoration: BoxDecoration(
+                          color: cardBgColor,
+                          border: Border.all(color: borderColor, width: 2.5),
+                          boxShadow: [BoxShadow(color: borderColor, offset: const Offset(3, 3))],
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.add_a_photo, size: 36, color: textColor),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Ambil atau Pilih Foto Target',
+                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: textColor),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  : Column(
+                      children: [
+                        Container(
+                          height: 200,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: cardBgColor,
+                            border: Border.all(color: borderColor, width: 2.5),
+                            boxShadow: [BoxShadow(color: borderColor, offset: const Offset(4, 4))],
+                          ),
+                          child: ClipRRect(
+                            child: Image.file(
+                              File(_imageUrl!),
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Center(
+                                  child: Text(
+                                    'Gagal memuat gambar',
+                                    style: TextStyle(fontWeight: FontWeight.w800, color: textColor),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: NeoButton(
+                                text: 'Ganti Foto',
+                                color: const Color(0xFFFFE500),
+                                icon: Icons.edit,
+                                onPressed: _showImageSourceOptions,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: NeoButton(
+                                text: 'Hapus Foto',
+                                color: const Color(0xFFFF5733),
+                                icon: Icons.delete_forever,
+                                onPressed: () {
+                                  setState(() {
+                                    _imageUrl = null;
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
               const SizedBox(height: 28),
 
               Text(

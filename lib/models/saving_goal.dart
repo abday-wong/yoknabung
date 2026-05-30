@@ -13,6 +13,8 @@ class SavingGoal {
   final List<Transaction> transactions;
   final bool isCompleted;
   final String? notes;
+  final String? imageUrl;
+  final String? targetUrl;
 
   SavingGoal({
     required this.id,
@@ -26,6 +28,8 @@ class SavingGoal {
     required this.transactions,
     this.isCompleted = false,
     this.notes,
+    this.imageUrl,
+    this.targetUrl,
   });
 
   double get currentAmount {
@@ -51,6 +55,10 @@ class SavingGoal {
     List<Transaction>? transactions,
     bool? isCompleted,
     String? notes,
+    String? imageUrl,
+    String? targetUrl,
+    bool clearImage = false,
+    bool clearUrl = false,
   }) {
     return SavingGoal(
       id: id,
@@ -64,6 +72,8 @@ class SavingGoal {
       transactions: transactions ?? this.transactions,
       isCompleted: isCompleted ?? this.isCompleted,
       notes: notes ?? this.notes,
+      imageUrl: clearImage ? null : (imageUrl ?? this.imageUrl),
+      targetUrl: clearUrl ? null : (targetUrl ?? this.targetUrl),
     );
   }
 
@@ -80,6 +90,8 @@ class SavingGoal {
       'transactions': transactions.map((t) => t.toJson()).toList(),
       'isCompleted': isCompleted,
       'notes': notes,
+      'imageUrl': imageUrl,
+      'targetUrl': targetUrl,
     };
   }
 
@@ -102,6 +114,8 @@ class SavingGoal {
           [],
       isCompleted: json['isCompleted'] as bool? ?? false,
       notes: json['notes'] as String?,
+      imageUrl: json['imageUrl'] as String?,
+      targetUrl: json['targetUrl'] as String?,
     );
   }
 }

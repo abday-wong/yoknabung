@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../models/saving_goal.dart';
 import '../models/transaction.dart';
 import '../providers/savings_provider.dart';
@@ -353,7 +355,118 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                     const SizedBox(height: 20),
 
                     SavingsCalculatorWidget(goal: goal),
-                    const SizedBox(height: 24),
+                     const SizedBox(height: 24),
+
+                    if (goal.imageUrl != null || goal.targetUrl != null) ...[
+                      Text(
+                        'Target Item',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: textColor,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      NeoCard(
+                        color: cardBgColor,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            if (goal.imageUrl != null) ...[
+                              Container(
+                                height: 220,
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: borderColor, width: 2.5),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: borderColor,
+                                      offset: const Offset(3, 3),
+                                    )
+                                  ],
+                                ),
+                                child: ClipRRect(
+                                  child: Image.file(
+                                    File(goal.imageUrl!),
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Center(
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            Icon(Icons.broken_image, size: 40, color: textColor),
+                                            const SizedBox(height: 8),
+                                            Text(
+                                              'Gagal memuat gambar target',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w800,
+                                                color: textColor,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                            ],
+                            if (goal.targetUrl != null) ...[
+                              Text(
+                                'Tautan Referensi Barang:',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w800,
+                                  color: textColor,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                goal.targetUrl!,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.blueAccent,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                              const SizedBox(height: 14),
+                              NeoButton(
+                                text: 'Buka Link Target',
+                                color: const Color(0xFFFFE500),
+                                icon: Icons.open_in_new,
+                                onPressed: () async {
+                                  try {
+                                    final Uri uri = Uri.parse(goal.targetUrl!);
+                                    if (await canLaunchUrl(uri)) {
+                                      await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                    } else {
+                                      if (context.mounted) {
+                                        NeoDialog.showNeoSnackbar(
+                                          context,
+                                          message: 'Tidak dapat membuka tautan target',
+                                        );
+                                      }
+                                    }
+                                  } catch (e) {
+                                    if (context.mounted) {
+                                      NeoDialog.showNeoSnackbar(
+                                        context,
+                                        message: 'Link tidak valid: $e',
+                                      );
+                                    }
+                                  }
+                                },
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
 
                     Text(
                       'Pencapaian Milestones',
