@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/saving_goal.dart';
 import '../models/transaction.dart';
+import '../models/exp_history_entry.dart';
 import '../providers/savings_provider.dart';
 import '../widgets/neo_card.dart';
 import '../widgets/neo_button.dart';
@@ -677,14 +678,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFF9F1C),
+                    color: provider.getStreakBadgeColor(),
                     border: Border.all(color: borderColor, width: 2.5),
                   ),
                   child: Row(
                     children: [
-                      const Text(
-                        '🔥',
-                        style: TextStyle(fontSize: 28),
+                      Text(
+                        provider.getStreakEmoji(),
+                        style: const TextStyle(fontSize: 28),
                       ),
                       const SizedBox(width: 8),
                       Column(
@@ -697,14 +698,23 @@ class _HomeScreenState extends State<HomeScreen> {
                               fontSize: 24,
                               fontWeight: FontWeight.w900,
                               color: Color(0xFF111111),
+                              height: 1.1,
                             ),
                           ),
                           const Text(
                             'HARI STREAK',
                             style: TextStyle(
-                              fontSize: 9,
+                              fontSize: 8,
                               fontWeight: FontWeight.w900,
                               color: Color(0xFF111111),
+                            ),
+                          ),
+                          Text(
+                            provider.getStreakStatus(),
+                            style: const TextStyle(
+                              fontSize: 8,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF111111), // High contrast black
                             ),
                           ),
                         ],
@@ -770,13 +780,58 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                               const SizedBox(height: 4),
-                              Text(
-                                expProgressText,
-                                style: TextStyle(
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w600,
-                                  color: subtextColor,
-                                ),
+                               Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      expProgressText,
+                                      style: TextStyle(
+                                        fontSize: 10.5,
+                                        fontWeight: FontWeight.w700,
+                                        color: textColor,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  GestureDetector(
+                                    onTap: () {
+                                      _showExpHistoryBottomSheet(context, provider);
+                                    },
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFFFE500), // Bright Neo-Brutalist yellow badge
+                                        border: Border.all(color: borderColor, width: 2),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: borderColor,
+                                            offset: const Offset(2, 2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Icon(
+                                            Icons.stars_rounded,
+                                            size: 14,
+                                            color: Color(0xFF111111),
+                                          ),
+                                          const SizedBox(width: 4),
+                                          const Text(
+                                            'Riwayat',
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w900,
+                                              color: Color(0xFF111111),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           );
@@ -1172,6 +1227,503 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showExpHistoryBottomSheet(BuildContext context, SavingsProvider provider) {
+    final currencyFormatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+    final dateFormatter = DateFormat('dd MMM yyyy, HH:mm');
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: provider.isDarkMode ? const Color(0xFF1E1E1E) : const Color(0xFFFFFDE7),
+      elevation: 0,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        side: BorderSide(
+          color: Colors.black,
+          width: 2.5,
+        ),
+      ),
+      builder: (context) {
+        int activeTab = 0; // 0 for History, 1 for Info Level
+        final currentLevel = provider.getGlobalLevel();
+
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            final isDark = provider.isDarkMode;
+            final textColor = isDark ? Colors.white : const Color(0xFF111111);
+            final subtextColor = isDark ? Colors.white70 : Colors.black87;
+            final borderColor = isDark ? Colors.white : const Color(0xFF111111);
+
+            return SafeArea(
+              child: Container(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.85,
+                ),
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 50,
+                        height: 5,
+                        color: borderColor,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Riwayat Setoran & EXP',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        color: textColor,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Level Kamu: ${provider.getLevelTitle(currentLevel)} (EXP: ${currencyFormatter.format(provider.getGlobalExp())})',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: isDark ? const Color(0xFF00C49A) : const Color(0xFF4361EE),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    // Tabs Header
+                    Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => setSheetState(() => activeTab = 0),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              decoration: BoxDecoration(
+                                color: activeTab == 0
+                                    ? const Color(0xFFFF9F1C)
+                                    : (isDark ? const Color(0xFF2E2E2E) : Colors.white),
+                                border: Border.all(color: borderColor, width: 2.5),
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                'Riwayat EXP',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w900,
+                                  color: activeTab == 0 ? const Color(0xFF111111) : textColor,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => setSheetState(() => activeTab = 1),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              decoration: BoxDecoration(
+                                color: activeTab == 1
+                                    ? const Color(0xFFFFE500)
+                                    : (isDark ? const Color(0xFF2E2E2E) : Colors.white),
+                                border: Border.all(color: borderColor, width: 2.5),
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                'Info Level',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w900,
+                                  color: activeTab == 1 ? const Color(0xFF111111) : textColor,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => setSheetState(() => activeTab = 2),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              decoration: BoxDecoration(
+                                color: activeTab == 2
+                                    ? const Color(0xFF00C49A)
+                                    : (isDark ? const Color(0xFF2E2E2E) : Colors.white),
+                                border: Border.all(color: borderColor, width: 2.5),
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                'Info Streak',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w900,
+                                  color: activeTab == 2 ? const Color(0xFF111111) : textColor,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    // Tab Content
+                    Flexible(
+                      child: activeTab == 0
+                          ? _buildHistoryTab(provider, isDark, textColor, subtextColor, borderColor, currencyFormatter, dateFormatter)
+                          : activeTab == 1
+                              ? _buildInfoLevelTab(provider, isDark, textColor, subtextColor, borderColor, currencyFormatter)
+                              : _buildInfoStreakTab(provider, isDark, textColor, subtextColor, borderColor),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildHistoryTab(
+    SavingsProvider provider,
+    bool isDark,
+    Color textColor,
+    Color subtextColor,
+    Color borderColor,
+    NumberFormat currencyFormatter,
+    DateFormat dateFormatter,
+  ) {
+    final List<ExpHistoryEntry> history = provider.expHistory.reversed.toList();
+
+    if (history.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 40),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              '😹',
+              style: TextStyle(fontSize: 48),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Belum ada riwayat deposit nih, yuk mulai nabung!',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: subtextColor,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const BouncingScrollPhysics(),
+      itemCount: history.length,
+      itemBuilder: (context, index) {
+        final ExpHistoryEntry entry = history[index];
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF2E2E2E) : Colors.white,
+            border: Border.all(color: borderColor, width: 2.5),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      entry.goalTitle,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        color: textColor,
+                      ),
+                    ),
+                    if (entry.note.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        entry.note,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: subtextColor,
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 4),
+                    Text(
+                      dateFormatter.format(entry.date),
+                      style: TextStyle(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w500,
+                        color: subtextColor.withOpacity(0.7),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF00C49A),
+                  border: Border.all(color: borderColor, width: 1.5),
+                ),
+                child: Text(
+                  '+${currencyFormatter.format(entry.amount)} EXP',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF111111),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildInfoLevelTab(
+    SavingsProvider provider,
+    bool isDark,
+    Color textColor,
+    Color subtextColor,
+    Color borderColor,
+    NumberFormat currencyFormatter,
+  ) {
+    final currentLevel = provider.getGlobalLevel();
+    final List<Map<String, dynamic>> levelsInfo = [
+      {'level': 1, 'minExp': 0, 'desc': 'cupu luwh'},
+      {'level': 2, 'minExp': 500000, 'desc': 'bole laa'},
+      {'level': 3, 'minExp': 2000000, 'desc': 'kelas kink'},
+      {'level': 4, 'minExp': 10000000, 'desc': 'njir banyak duid'},
+      {'level': 5, 'minExp': 20000000, 'desc': 'dah mentok kink'},
+    ];
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const BouncingScrollPhysics(),
+      itemCount: levelsInfo.length,
+      itemBuilder: (context, index) {
+        final info = levelsInfo[index];
+        final int lvl = info['level'] as int;
+        final int minExp = info['minExp'] as int;
+        final String title = info['desc'] as String;
+        final bool isCurrent = lvl == currentLevel;
+
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isCurrent
+                ? (isDark ? const Color(0xFF554400) : const Color(0xFFFFFDE7))
+                : (isDark ? const Color(0xFF2E2E2E) : Colors.white),
+            border: Border.all(
+              color: isCurrent ? (isDark ? const Color(0xFFFFE500) : const Color(0xFFFF9F1C)) : borderColor,
+              width: isCurrent ? 3.0 : 2.5,
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          'Level $lvl: $title',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                            color: textColor,
+                          ),
+                        ),
+                        if (isCurrent) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFF9F1C),
+                              border: Border.all(color: borderColor, width: 1.2),
+                            ),
+                            child: const Text(
+                              'LEVEL LU',
+                              style: TextStyle(
+                                fontSize: 8,
+                                fontWeight: FontWeight.w900,
+                                color: Color(0xFF111111),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      lvl == 5
+                          ? 'Minimal EXP: ${currencyFormatter.format(minExp)}'
+                          : 'EXP: ${currencyFormatter.format(minExp)} s.d. ${currencyFormatter.format((levelsInfo[lvl]['minExp'] as int) - 1)}',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: subtextColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildInfoStreakTab(
+    SavingsProvider provider,
+    bool isDark,
+    Color textColor,
+    Color subtextColor,
+    Color borderColor,
+  ) {
+    final currentStreak = provider.getGlobalStreak();
+    final List<Map<String, dynamic>> streakInfo = [
+      {'minDays': 0, 'maxDays': 9, 'emoji': '🔥', 'title': 'iseng doang', 'color': const Color(0xFFFF9F1C)},
+      {'minDays': 10, 'maxDays': 29, 'emoji': '⚡', 'title': 'lumayan gacor', 'color': const Color(0xFFFFE500)},
+      {'minDays': 30, 'maxDays': 49, 'emoji': '💥', 'title': 'sepuh nabung', 'color': const Color(0xFFFF5A5F)},
+      {'minDays': 50, 'maxDays': 99, 'emoji': '👑', 'title': 'otewe kaya', 'color': const Color(0xFF00C49A)},
+      {'minDays': 100, 'maxDays': 299, 'emoji': '🏆', 'title': 'juragan tabungan', 'color': const Color(0xFF8B5CF6)},
+      {'minDays': 300, 'maxDays': 499, 'emoji': '🔮', 'title': 'kink abiez', 'color': const Color(0xFF4361EE)},
+      {'minDays': 500, 'maxDays': null, 'emoji': '🐉', 'title': 'dah mentok kink', 'color': const Color(0xFFF72585)},
+    ];
+
+    int activeIndex = -1;
+    for (int i = 0; i < streakInfo.length; i++) {
+      final int minDays = streakInfo[i]['minDays'] as int;
+      final int? maxDays = streakInfo[i]['maxDays'] as int?;
+      if (currentStreak >= minDays && (maxDays == null || currentStreak <= maxDays)) {
+        activeIndex = i;
+        break;
+      }
+    }
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const BouncingScrollPhysics(),
+      itemCount: streakInfo.length,
+      itemBuilder: (context, index) {
+        final info = streakInfo[index];
+        final int minDays = info['minDays'] as int;
+        final int? maxDays = info['maxDays'] as int?;
+        final String emoji = info['emoji'] as String;
+        final String title = info['title'] as String;
+        final Color badgeBg = info['color'] as Color;
+        final bool isCurrent = index == activeIndex;
+
+        final rangeText = maxDays == null
+            ? '>= $minDays Hari Streak'
+            : '$minDays s.d. $maxDays Hari Streak';
+
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isCurrent
+                ? (isDark ? const Color(0xFF554400) : const Color(0xFFFFFDE7))
+                : (isDark ? const Color(0xFF2E2E2E) : Colors.white),
+            border: Border.all(
+              color: isCurrent ? (isDark ? const Color(0xFFFFE500) : const Color(0xFFFF9F1C)) : borderColor,
+              width: isCurrent ? 3.0 : 2.5,
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: badgeBg,
+                  border: Border.all(color: borderColor, width: 2.0),
+                ),
+                child: Text(
+                  emoji,
+                  style: const TextStyle(fontSize: 22),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            title,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w800,
+                              color: textColor,
+                            ),
+                          ),
+                        ),
+                        if (isCurrent) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFF9F1C),
+                              border: Border.all(color: borderColor, width: 1.2),
+                            ),
+                            child: const Text(
+                              'STREAK LU',
+                              style: TextStyle(
+                                fontSize: 8,
+                                fontWeight: FontWeight.w900,
+                                color: Color(0xFF111111),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      rangeText,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: subtextColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         );
       },

@@ -1,15 +1,17 @@
 import 'dart:convert';
 import 'dart:math';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import '../models/saving_goal.dart';
 import '../models/transaction.dart';
 import '../models/milestone.dart';
+import '../models/exp_history_entry.dart';
 import '../services/notification_service.dart';
 
 class SavingsProvider with ChangeNotifier {
   List<SavingGoal> _goals = [];
+  List<ExpHistoryEntry> _expHistory = [];
   bool _isLoading = true;
   final Uuid _uuid = const Uuid();
   bool _isDarkMode = false;
@@ -19,9 +21,10 @@ class SavingsProvider with ChangeNotifier {
   String _reminderMessage = 'Jangan lupa sisihkan uang hari ini untuk mencapai target tabunganmu!';
 
   List<SavingGoal> get goals => _goals;
+  List<ExpHistoryEntry> get expHistory => _expHistory;
   bool get isLoading => _isLoading;
-    bool get isDarkMode => _isDarkMode;
-    bool get isReminderEnabled => _isReminderEnabled;
+  bool get isDarkMode => _isDarkMode;
+  bool get isReminderEnabled => _isReminderEnabled;
   int get reminderHour => _reminderHour;
   int get reminderMinute => _reminderMinute;
   String get reminderMessage => _reminderMessage;
@@ -104,13 +107,41 @@ class SavingsProvider with ChangeNotifier {
     return streak;
   }
 
+  String getStreakEmoji() {
+    final streak = getGlobalStreak();
+    if (streak < 10) return '🔥';
+    if (streak < 30) return '⚡';
+    if (streak < 50) return '💥';
+    if (streak < 100) return '👑';
+    if (streak < 300) return '🏆';
+    if (streak < 500) return '🔮';
+    return '🐉';
+  }
+
+  String getStreakStatus() {
+    final streak = getGlobalStreak();
+    if (streak < 10) return 'iseng doang';
+    if (streak < 30) return 'lumayan gacor';
+    if (streak < 50) return 'sepuh nabung';
+    if (streak < 100) return 'otewe kaya';
+    if (streak < 300) return 'juragan tabungan';
+    if (streak < 500) return 'kink abiez';
+    return 'dah mentok kink';
+  }
+
+  Color getStreakBadgeColor() {
+    final streak = getGlobalStreak();
+    if (streak < 10) return const Color(0xFFFF9F1C);
+    if (streak < 30) return const Color(0xFFFFE500);
+    if (streak < 50) return const Color(0xFFFF5A5F);
+    if (streak < 100) return const Color(0xFF00C49A);
+    if (streak < 300) return const Color(0xFF8B5CF6);
+    if (streak < 500) return const Color(0xFF4361EE);
+    return const Color(0xFFF72585);
+  }
+
   double getGlobalExp() {
-    return _goals.fold(0.0, (sum, goal) {
-      final depositSum = goal.transactions
-          .where((t) => t.type == TransactionType.deposit)
-          .fold(0.0, (txSum, tx) => txSum + tx.amount);
-      return sum + depositSum;
-    });
+    return _expHistory.fold(0.0, (sum, entry) => sum + entry.amount);
   }
 
   int getGlobalLevel() {
@@ -156,6 +187,17 @@ class SavingsProvider with ChangeNotifier {
       final updatedGoal = goal.copyWith(transactions: updatedTxList);
       _goals[index] = updatedGoal;
       checkAndUpdateMilestones(updatedGoal);
+
+      if (tx.type == TransactionType.deposit) {
+        _expHistory.add(ExpHistoryEntry(
+          id: tx.id,
+          date: tx.date,
+          amount: tx.amount,
+          goalTitle: goal.title,
+          note: tx.note,
+        ));
+      }
+
       saveToPrefs();
       notifyListeners();
 
@@ -400,6 +442,9 @@ class SavingsProvider with ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       final String data = jsonEncode(_goals.map((g) => g.toJson()).toList());
       await prefs.setString('savings_goals', data);
+      
+      final String expHistoryData = jsonEncode(_expHistory.map((e) => e.toJson()).toList());
+      await prefs.setString('exp_history', expHistoryData);
     } catch (e) {
       debugPrint('Error saving goals: $e');
     }
@@ -421,12 +466,53 @@ class SavingsProvider with ChangeNotifier {
       final String? data = prefs.getString('savings_goals');
       if (data == null || data.isEmpty) {
         _loadSampleData();
+        // If sample data is loaded, populate initial exp history from it as well
+        _expHistory = [];
+        for (var goal in _goals) {
+          for (var tx in goal.transactions) {
+            if (tx.type == TransactionType.deposit) {
+              _expHistory.add(ExpHistoryEntry(
+                id: tx.id,
+                date: tx.date,
+                amount: tx.amount,
+                goalTitle: goal.title,
+                note: tx.note,
+              ));
+            }
+          }
+        }
+        _expHistory.sort((a, b) => a.date.compareTo(b.date));
       } else {
         final List<dynamic> decoded = jsonDecode(data) as List<dynamic>;
         _goals = decoded.map((item) => SavingGoal.fromJson(item as Map<String, dynamic>)).toList();
         
         for (var goal in _goals) {
           checkAndUpdateMilestones(goal);
+        }
+
+        final String? expHistoryData = prefs.getString('exp_history');
+        if (expHistoryData != null && expHistoryData.isNotEmpty) {
+          final List<dynamic> decodedExp = jsonDecode(expHistoryData) as List<dynamic>;
+          _expHistory = decodedExp.map((item) => ExpHistoryEntry.fromJson(item as Map<String, dynamic>)).toList();
+        } else {
+          _expHistory = [];
+          if (_goals.isNotEmpty) {
+            for (var goal in _goals) {
+              for (var tx in goal.transactions) {
+                if (tx.type == TransactionType.deposit) {
+                  _expHistory.add(ExpHistoryEntry(
+                    id: tx.id,
+                    date: tx.date,
+                    amount: tx.amount,
+                    goalTitle: goal.title,
+                    note: tx.note,
+                  ));
+                }
+              }
+            }
+            _expHistory.sort((a, b) => a.date.compareTo(b.date));
+            saveToPrefs();
+          }
         }
       }
     } catch (e) {
@@ -602,5 +688,12 @@ class SavingsProvider with ChangeNotifier {
     }
 
     saveToPrefs();
+  }
+
+  void clearAllData() {
+    _goals = [];
+    _expHistory = [];
+    saveToPrefs();
+    notifyListeners();
   }
 }
