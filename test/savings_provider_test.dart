@@ -234,7 +234,7 @@ void main() {
       
       expect(provider.getGlobalStreak(), 0);
       expect(provider.getGlobalLevel(), 1);
-      expect(provider.getLevelTitle(1), 'Penabung Pemula');
+      expect(provider.getLevelTitle(1), 'Kaum Mendang-Mending');
 
       final txToday = Transaction(
         id: 'tx_today',
@@ -274,7 +274,7 @@ void main() {
 
       expect(provider.getGlobalStreak(), 5);
       expect(provider.getGlobalLevel(), 2);
-      expect(provider.getLevelTitle(2), 'Pejuang Celengan');
+      expect(provider.getLevelTitle(2), 'Nabung Tipis-Tipis');
     });
   });
 }
