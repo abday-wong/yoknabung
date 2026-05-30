@@ -34,6 +34,7 @@ class SavingsCalculatorWidget extends StatelessWidget {
     double dailyTarget = provider.getDailyTarget(goal);
     double weeklyTarget = provider.getWeeklyTarget(goal);
     double monthlyTarget = provider.getMonthlyTarget(goal);
+    final double avgDaily = provider.getAverageDailyDeposit(goal);
 
     int daysRemaining = provider.getDaysRemaining(goal);
     bool isUrgent = daysRemaining < 30;
@@ -104,6 +105,56 @@ class SavingsCalculatorWidget extends StatelessWidget {
           buildCalculatorRow('Perlu nabung/bulan', currencyFormatter.format(monthlyTarget), isDark ? const Color(0xFF4361EE).withValues(alpha: 0.3) : const Color(0xFF4361EE).withValues(alpha: 0.15)),
           buildCalculatorRow('Sisa waktu', '$daysRemaining hari lagi', isUrgent ? (isDark ? const Color(0xFFFF5733).withValues(alpha: 0.3) : const Color(0xFFFF5733).withValues(alpha: 0.2)) : (isDark ? Colors.grey.shade800 : Colors.grey.shade100), isValRed: isUrgent),
           buildCalculatorRow('Proyeksi selesai', projectedDateText, isDark ? const Color(0xFFFF5733).withValues(alpha: 0.2) : const Color(0xFFFF5733).withValues(alpha: 0.1)),
+          buildCalculatorRow('Rata-rata harian (Kebiasaan)', currencyFormatter.format(avgDaily), isDark ? const Color(0xFF00C49A).withValues(alpha: 0.2) : const Color(0xFF00C49A).withValues(alpha: 0.1)),
+          const SizedBox(height: 12),
+          Container(
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF2C2C2C) : const Color(0xFFF9F9F9),
+              border: Border.all(color: borderColor, width: 2),
+            ),
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      avgDaily >= dailyTarget
+                          ? Icons.check_circle
+                          : (avgDaily == 0 ? Icons.info : Icons.warning),
+                      color: avgDaily >= dailyTarget
+                          ? const Color(0xFF00C49A)
+                          : (avgDaily == 0 ? const Color(0xFF4361EE) : const Color(0xFFFF5733)),
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Adaptasi Kebiasaan Nabung',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 12,
+                        color: textColor,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  avgDaily == 0
+                      ? 'Belum ada transaksi tercatat. Mulai menabung hari ini untuk menganalisis kebiasaan menabungmu!'
+                      : (avgDaily >= dailyTarget
+                          ? 'Hebat! Rata-rata tabungan harianmu (${currencyFormatter.format(avgDaily)}) sudah di atas target harian (${currencyFormatter.format(dailyTarget)}). Kamu di jalur yang tepat!'
+                          : 'Rata-rata tabungan harianmu (${currencyFormatter.format(avgDaily)}) masih di bawah target harian (${currencyFormatter.format(dailyTarget)}). Berdasarkan kebiasaanmu, goal diproyeksikan selesai pada $projectedDateText.'),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 11,
+                    height: 1.4,
+                    color: isDark ? Colors.white70 : Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
