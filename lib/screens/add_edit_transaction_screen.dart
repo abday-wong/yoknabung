@@ -67,7 +67,6 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
     _date = tx?.date ?? DateTime.now();
     _note = tx?.note ?? '';
 
-    // Format amount for display if editing
     String amountText = '';
     if (tx != null) {
       final formatter = NumberFormat('#,###', 'id_ID');
@@ -153,7 +152,6 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
     final provider = Provider.of<SavingsProvider>(context, listen: false);
     final goal = provider.goals.firstWhere((g) => g.id == widget.goalId);
 
-    // Calculate current amount excluding this transaction if editing
     double balanceExcludingTx = goal.currentAmount;
     if (widget.existingTransaction != null) {
       final oldTx = widget.existingTransaction!;
@@ -164,7 +162,6 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
       }
     }
 
-    // Validation for withdrawal limits
     if (_type == TransactionType.withdrawal) {
       if (_amount > balanceExcludingTx) {
         NeoDialog.showNeoSnackbar(
@@ -176,7 +173,6 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
     }
 
     if (widget.existingTransaction == null) {
-      // Add Mode
       final newTx = Transaction(
         id: const Uuid().v4(),
         amount: _amount,
@@ -188,7 +184,6 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
       Navigator.pop(context);
       NeoDialog.showNeoSnackbar(context, message: 'Transaksi berhasil dicatat!');
     } else {
-      // Edit Mode
       final updatedTx = Transaction(
         id: widget.existingTransaction!.id,
         amount: _amount,
@@ -245,7 +240,6 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Toggle Deposit / Withdrawal (Neo Brutalist Style)
               Text(
                 'Jenis Transaksi',
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textColor),
@@ -267,7 +261,7 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
                         child: Container(
                           height: 50,
                           color: _type == TransactionType.deposit
-                              ? const Color(0xFF00C49A) // Green
+                              ? const Color(0xFF00C49A)
                               : cardBgColor,
                           child: Center(
                             child: Text(
@@ -293,7 +287,7 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
                         child: Container(
                           height: 50,
                           color: _type == TransactionType.withdrawal
-                              ? const Color(0xFFFF5733) // Red-orange
+                              ? const Color(0xFFFF5733)
                               : cardBgColor,
                           child: Center(
                             child: Text(
@@ -313,7 +307,6 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Amount Field
               Text(
                 'Nominal (Rp)',
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textColor),
@@ -349,7 +342,6 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
               ),
               const SizedBox(height: 12),
 
-              // Quick injection buttons
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
@@ -386,7 +378,6 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Date Picker
               Text(
                 'Tanggal Transaksi',
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textColor),
@@ -415,7 +406,6 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Note Field
               Text(
                 'Keterangan (Opsional)',
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: textColor),
@@ -440,7 +430,6 @@ class _AddEditTransactionScreenState extends State<AddEditTransactionScreen> {
               ),
               const SizedBox(height: 32),
 
-              // Save Button
               NeoButton(
                 text: isEdit ? 'Simpan Transaksi' : 'Catat Transaksi Baru',
                 color: const Color(0xFFFFE500),

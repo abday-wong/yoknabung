@@ -28,7 +28,6 @@ class YokNabungApp extends StatelessWidget {
       title: 'YokNabung',
       debugShowCheckedModeBanner: false,
       
-      // Indonesian Localization Setup
       supportedLocales: const [
         Locale('id', 'ID'),
       ],
@@ -39,7 +38,6 @@ class YokNabungApp extends StatelessWidget {
       ],
       locale: const Locale('id', 'ID'),
 
-      // Neo-Brutalist Theme Styling
       theme: ThemeData(
         brightness: isDark ? Brightness.dark : Brightness.light,
         scaffoldBackgroundColor: scaffoldBgColor,
@@ -62,7 +60,6 @@ class YokNabungApp extends StatelessWidget {
           labelSmall: GoogleFonts.spaceGrotesk(fontWeight: FontWeight.w800, color: textColor),
         ),
         
-        // Remove material shadows
         shadowColor: Colors.transparent,
         appBarTheme: AppBarTheme(
           backgroundColor: scaffoldBgColor,

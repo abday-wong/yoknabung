@@ -51,8 +51,8 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
       secondaryLabel: 'Batal',
       onPrimaryPressed: () {
         provider.deleteGoal(goal.id);
-        Navigator.pop(context); // close dialog
-        Navigator.pop(context); // pop detail screen
+        Navigator.pop(context);
+        Navigator.pop(context);
         NeoDialog.showNeoSnackbar(context, message: 'Goal "${goal.title}" telah dihapus');
       },
     );
@@ -68,7 +68,7 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
           color: const Color(0xFF4361EE),
           icon: Icons.edit,
           onPressed: () {
-            Navigator.pop(context); // close bottom sheet
+            Navigator.pop(context);
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -86,7 +86,7 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
           color: const Color(0xFFFF5733),
           icon: Icons.delete,
           onPressed: () {
-            Navigator.pop(context); // close bottom sheet
+            Navigator.pop(context);
             _deleteTransactionWithUndo(context, provider, goal.id, tx);
           },
         ),
@@ -136,7 +136,6 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
 
     return Consumer<SavingsProvider>(
       builder: (context, provider, child) {
-        // Find goal, safety guard if deleted
         final goalIndex = provider.goals.indexWhere((g) => g.id == widget.goalId);
         if (goalIndex == -1) {
           return const Scaffold(
@@ -221,14 +220,12 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
           body: TabBarView(
             controller: _tabController,
             children: [
-              // --- TAB 1: OVERVIEW & ROADMAP ---
               SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Overview header card
                     NeoCard(
                       color: isGoalCompleted
                           ? const Color(0xFF00C49A).withValues(alpha: isDark ? 0.25 : 0.15)
@@ -263,7 +260,6 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                             ],
                           ),
                           const SizedBox(height: 16),
-                          // Custom Circular Progress Display
                           Stack(
                             alignment: Alignment.center,
                             children: [
@@ -334,7 +330,6 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                             ),
                           ),
                           const SizedBox(height: 12),
-                          // Motivational message banner
                           Container(
                             width: double.infinity,
                             decoration: BoxDecoration(
@@ -357,11 +352,9 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                     ),
                     const SizedBox(height: 20),
 
-                    // Savings Calculator
                     SavingsCalculatorWidget(goal: goal),
                     const SizedBox(height: 24),
 
-                    // Roadmap Section Title
                     Text(
                       'Pencapaian Milestones',
                       style: TextStyle(
@@ -372,14 +365,12 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                     ),
                     const SizedBox(height: 16),
 
-                    // Roadmap Timeline Widget
                     RoadmapWidget(goal: goal),
                     const SizedBox(height: 32),
                   ],
                 ),
               ),
 
-              // --- TAB 2: TRANSACTIONS LIST ---
               goal.transactions.isEmpty
                   ? Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -440,14 +431,12 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                             padding: const EdgeInsets.all(16),
                             separatorBuilder: (context, index) => const SizedBox(height: 12),
                             itemBuilder: (context, index) {
-                              // Sort reverse chronological
                               final sortedTxs = List<Transaction>.from(goal.transactions)
                                 ..sort((a, b) => b.date.compareTo(a.date));
                               final tx = sortedTxs[index];
 
                               final isDeposit = tx.type == TransactionType.deposit;
 
-                              // Calculate running balance up to this transaction
                               double runningBalance = 0;
                               final chronTxs = List<Transaction>.from(goal.transactions)
                                 ..sort((a, b) => a.date.compareTo(b.date));
@@ -485,7 +474,6 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                     child: Row(
                                       children: [
-                                        // Type icon bubble
                                         Container(
                                           width: 38,
                                           height: 38,
@@ -500,7 +488,6 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                                           ),
                                         ),
                                         const SizedBox(width: 12),
-                                        // Note & Date
                                         Expanded(
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -525,7 +512,6 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                                             ],
                                           ),
                                         ),
-                                        // Amount & Running Balance
                                         Column(
                                           crossAxisAlignment: CrossAxisAlignment.end,
                                           children: [
@@ -559,7 +545,6 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                       ],
                     ),
 
-              // --- TAB 3: CHARTS TRAJECTORY ---
               _buildChartsTab(context, goal, currencyFormatter),
             ],
           ),
@@ -606,12 +591,9 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
       );
     }
 
-    // Sort chronologically for computing cumulative sum
     final sortedTxs = List<Transaction>.from(goal.transactions)
       ..sort((a, b) => a.date.compareTo(b.date));
 
-    // 1. Group Monthly Deposits
-    // Let's create a map of "Month Year" -> Sum
     final Map<String, double> monthlySums = {};
     for (var tx in sortedTxs) {
       if (tx.type == TransactionType.deposit) {
@@ -642,10 +624,8 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
       );
     }
 
-    // 2. Cumulative Growth Spots
     final List<FlSpot> cumulativeSpots = [];
     double runningSum = 0;
-    // Add start date spot
     cumulativeSpots.add(const FlSpot(0, 0));
     
     for (int i = 0; i < sortedTxs.length; i++) {
@@ -667,7 +647,6 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Section 1: Monthly Deposits Bar Chart
           Text(
             'Grafik Setoran Bulanan',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: textColor),
@@ -721,7 +700,6 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                               reservedSize: 45,
                               getTitlesWidget: (double val, TitleMeta meta) {
                                 if (val == 0) return const SizedBox();
-                                // Simplify text to M / K
                                 String label = '';
                                 if (val >= 1000000) {
                                   label = '${(val / 1000000).toStringAsFixed(1)}jt';
@@ -746,7 +724,6 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
           ),
           const SizedBox(height: 24),
 
-          // Section 2: Cumulative Line Chart
           Text(
             'Kurva Pertumbuhan & Target',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: textColor),
@@ -835,11 +812,10 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> with SingleTickerPr
                     ],
                   ),
                   lineBarsData: [
-                    // Cumulative growth line
                     LineChartBarData(
                       spots: cumulativeSpots,
                       isCurved: false,
-                      color: const Color(0xFF4361EE), // blue
+                      color: const Color(0xFF4361EE),
                       barWidth: 3,
                       isStrokeCapRound: true,
                       dotData: const FlDotData(show: true),

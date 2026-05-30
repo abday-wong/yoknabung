@@ -32,7 +32,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late Timer _clockTimer;
   String _timeStr = '';
-  int _currentIndex = 0; // 0 = Goals, 1 = History
+  int _currentIndex = 0;
 
   @override
   void initState() {
@@ -64,10 +64,10 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         NeoButton(
           text: 'Edit Tabungan',
-          color: const Color(0xFF4361EE), // blue
+          color: const Color(0xFF4361EE),
           icon: Icons.edit,
           onPressed: () {
-            Navigator.pop(context); // close bottom sheet
+            Navigator.pop(context);
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -79,10 +79,10 @@ class _HomeScreenState extends State<HomeScreen> {
         const SizedBox(height: 12),
         NeoButton(
           text: 'Hapus Goal',
-          color: const Color(0xFFFF5733), // red-orange
+          color: const Color(0xFFFF5733),
           icon: Icons.delete,
           onPressed: () {
-            Navigator.pop(context); // close bottom sheet
+            Navigator.pop(context);
             _confirmDeleteGoal(context, provider, goal);
           },
         ),
@@ -100,7 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
       secondaryLabel: 'Batal',
       onPrimaryPressed: () {
         provider.deleteGoal(goal.id);
-        Navigator.pop(context); // close dialog
+        Navigator.pop(context);
         NeoDialog.showNeoSnackbar(context, message: 'Goal "${goal.title}" telah dihapus');
       },
     );
@@ -291,7 +291,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final cardBgColor = isDark ? const Color(0xFF1E1E1E) : Colors.white;
     final subtextColor = isDark ? Colors.white70 : Colors.black54;
 
-    // Compute summary row data
     double totalSaved = 0;
     double totalRemaining = 0;
     for (var g in goals) {
@@ -306,16 +305,14 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Real-time Clock Card
           const RealtimeClockWidget(),
           const SizedBox(height: 20),
 
-          // Summary Card Row
           Row(
             children: [
               Expanded(
                 child: NeoCard(
-                  color: const Color(0xFFFFE500), // Yellow
+                  color: const Color(0xFFFFE500),
                   padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
                   child: Column(
                     children: [
@@ -343,7 +340,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(width: 8),
               Expanded(
                 child: NeoCard(
-                  color: const Color(0xFF00C49A), // Green
+                  color: const Color(0xFF00C49A),
                   padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
                   child: Column(
                     children: [
@@ -374,7 +371,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(width: 8),
               Expanded(
                 child: NeoCard(
-                  color: const Color(0xFFFF5733), // Red-orange
+                  color: const Color(0xFFFF5733),
                   padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
                   child: Column(
                     children: [
@@ -406,7 +403,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 24),
 
-          // Title Section
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -436,7 +432,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 16),
 
-          // Goals List / Empty State
           if (goals.isEmpty)
             NeoCard(
               color: cardBgColor,
@@ -504,7 +499,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Emoji Bubble
                             Container(
                               width: 46,
                               height: 46,
@@ -520,7 +514,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                             const SizedBox(width: 12),
-                            // Title and Category
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -552,7 +545,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ],
                               ),
                             ),
-                            // Quick Deposit FAB-style button
                             NeoButton(
                               color: const Color(0xFFFFE500),
                               padding: const EdgeInsets.all(8),
@@ -572,7 +564,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           ],
                         ),
                         const SizedBox(height: 16),
-                        // Amount values row
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -595,13 +586,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           ],
                         ),
                         const SizedBox(height: 8),
-                        // Progress Bar Custom Widget
                         ProgressBarWidget(
                           percentage: percentage,
                           fillColor: isGoalCompleted ? const Color(0xFF00C49A) : const Color(0xFFFFE500),
                         ),
                         const SizedBox(height: 8),
-                        // Percentage and remaining days row
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -645,7 +634,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final subtextColor = isDark ? Colors.white70 : Colors.black54;
     final iconMutedColor = isDark ? Colors.white38 : Colors.black38;
 
-    // Aggregate all transactions
     final List<GlobalTransaction> allTxs = [];
     for (var goal in provider.goals) {
       for (var tx in goal.transactions) {
@@ -653,7 +641,6 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     }
 
-    // Sort by date in reverse chronological order
     allTxs.sort((a, b) => b.transaction.date.compareTo(a.transaction.date));
 
     if (allTxs.isEmpty) {
@@ -721,7 +708,6 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.all(12.0),
             child: Row(
               children: [
-                // Goal Emoji container
                 Container(
                   width: 40,
                   height: 40,
@@ -738,7 +724,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(width: 12),
 
-                // Note, date, and goal title
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -784,7 +769,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
 
-                // Amount
                 Text(
                   '${isDeposit ? "+" : "-"}${currencyFormatter.format(tx.amount)}',
                   style: TextStyle(

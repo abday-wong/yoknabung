@@ -17,7 +17,7 @@ class NeoButton extends StatefulWidget {
     this.child,
     this.text,
     this.icon,
-    this.color = const Color(0xFFFFE500), // Default yellow accent
+    this.color = const Color(0xFFFFE500),
     this.textColor,
     this.onPressed,
     this.padding = const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),

@@ -36,14 +36,12 @@ class SavingsProvider with ChangeNotifier {
     }
   }
 
-  // --- CRUD OPERATIONS ---
 
   void addGoal(SavingGoal goal) {
-    // Generate milestones for the new goal
     final milestones = _generateMilestones(goal.id, goal.targetAmount);
     final newGoal = goal.copyWith(milestones: milestones);
     _goals.add(newGoal);
-    checkAndUpdateMilestones(newGoal); // just in case there are initial transactions
+    checkAndUpdateMilestones(newGoal);
     saveToPrefs();
     notifyListeners();
   }
@@ -51,7 +49,6 @@ class SavingsProvider with ChangeNotifier {
   void updateGoal(SavingGoal updatedGoal) {
     final index = _goals.indexWhere((g) => g.id == updatedGoal.id);
     if (index != -1) {
-      // Recalculate milestones based on new targetAmount, preserving isReached status where possible
       final newMilestones = recalculateMilestones(updatedGoal);
       final finalGoal = updatedGoal.copyWith(milestones: newMilestones);
       _goals[index] = finalGoal;
@@ -129,7 +126,6 @@ class SavingsProvider with ChangeNotifier {
     }
   }
 
-  // --- CALCULATION METHODS ---
 
   double getCurrentAmount(SavingGoal goal) {
     return goal.currentAmount;
@@ -182,16 +178,14 @@ class SavingsProvider with ChangeNotifier {
   DateTime? getProjectedCompletion(SavingGoal goal) {
     final remaining = goal.targetAmount - goal.currentAmount;
     if (remaining <= 0) {
-      // already completed
       if (goal.transactions.isNotEmpty) {
-        // Find the date when it was actually completed
         return goal.transactions.last.date;
       }
       return goal.startDate;
     }
 
     final avgDaily = getAverageDailyDeposit(goal);
-    if (avgDaily <= 0) return null; // No saving pattern yet
+    if (avgDaily <= 0) return null;
 
     final daysNeeded = (remaining / avgDaily).ceil();
     return DateTime.now().add(Duration(days: daysNeeded));
@@ -200,7 +194,6 @@ class SavingsProvider with ChangeNotifier {
   List<Milestone> recalculateMilestones(SavingGoal goal) {
     final newMilestones = _generateMilestones(goal.id, goal.targetAmount);
     
-    // Preserve old status if percentage matches
     for (var newMs in newMilestones) {
       final oldMsIndex = goal.milestones.indexWhere((m) => m.percentage == newMs.percentage);
       if (oldMsIndex != -1) {
@@ -233,7 +226,6 @@ class SavingsProvider with ChangeNotifier {
       }
     }
 
-    // Check completion status
     final isNowCompleted = currentVal >= goal.targetAmount;
     if (isNowCompleted != goal.isCompleted) {
       final goalIndex = _goals.indexWhere((g) => g.id == goal.id);
@@ -265,7 +257,6 @@ class SavingsProvider with ChangeNotifier {
     }
   }
 
-  // --- PERSISTENCE ---
 
   Future<void> saveToPrefs() async {
     try {
@@ -291,7 +282,6 @@ class SavingsProvider with ChangeNotifier {
         final List<dynamic> decoded = jsonDecode(data) as List<dynamic>;
         _goals = decoded.map((item) => SavingGoal.fromJson(item as Map<String, dynamic>)).toList();
         
-        // Re-run milestone check for all goals just to keep state aligned
         for (var goal in _goals) {
           checkAndUpdateMilestones(goal);
         }
@@ -305,7 +295,6 @@ class SavingsProvider with ChangeNotifier {
     }
   }
 
-  // --- HELPERS ---
 
   List<Milestone> _generateMilestones(String goalId, double targetAmount) {
     return [
@@ -339,7 +328,6 @@ class SavingsProvider with ChangeNotifier {
   void _loadSampleData() {
     final now = DateTime.now();
 
-    // Goal 1: iPhone 16 Pro
     final goal1Id = _uuid.v4();
     final goal1StartDate = now.subtract(const Duration(days: 90));
     final goal1TargetDate = now.add(const Duration(days: 180));
@@ -394,7 +382,6 @@ class SavingsProvider with ChangeNotifier {
       notes: 'Beli yang warna titanium gurih!',
     );
 
-    // Goal 2: Liburan Bali
     final goal2Id = _uuid.v4();
     final goal2StartDate = now.subtract(const Duration(days: 30));
     final goal2TargetDate = now.add(const Duration(days: 120));
@@ -437,7 +424,6 @@ class SavingsProvider with ChangeNotifier {
 
     _goals = [goal1, goal2];
 
-    // Seed milestones reached status based on transactions
     for (var g in _goals) {
       checkAndUpdateMilestones(g);
     }

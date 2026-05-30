@@ -3,25 +3,23 @@ import 'package:provider/provider.dart';
 import '../providers/savings_provider.dart';
 
 class ProgressBarWidget extends StatelessWidget {
-  final double percentage; // 0.0 to 100.0
+  final double percentage;
   final Color fillColor;
 
   const ProgressBarWidget({
     super.key,
     required this.percentage,
-    this.fillColor = const Color(0xFF00C49A), // Default green accent
+    this.fillColor = const Color(0xFF00C49A),
   });
 
   @override
   Widget build(BuildContext context) {
     final double clampedPct = percentage.clamp(0.0, 100.0) / 100.0;
     
-    // Check dark mode
     bool isDark = false;
     try {
       isDark = Provider.of<SavingsProvider>(context).isDarkMode;
     } catch (_) {
-      // Fallback if provider is not present in context
     }
     
     final borderColor = isDark ? Colors.white : const Color(0xFF111111);

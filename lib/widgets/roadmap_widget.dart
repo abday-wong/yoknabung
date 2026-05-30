@@ -30,7 +30,6 @@ class RoadmapWidget extends StatelessWidget {
         final milestone = goal.milestones[index];
         final isReached = milestone.isReached;
 
-        // Calculate predicted date
         String predictionText = '-';
         if (isReached && milestone.reachedAt != null) {
           predictionText = 'Tercapai pada: ${df.format(milestone.reachedAt!)}';
@@ -48,10 +47,8 @@ class RoadmapWidget extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Timeline Column (Circle + Line)
               Column(
                 children: [
-                  // Circle Indicator
                   Container(
                     width: 40,
                     height: 40,
@@ -86,7 +83,6 @@ class RoadmapWidget extends StatelessWidget {
                             ),
                     ),
                   ),
-                  // Vertical Line
                   if (!isLast)
                     Expanded(
                       child: Container(
@@ -99,7 +95,6 @@ class RoadmapWidget extends StatelessWidget {
                 ],
               ),
               const SizedBox(width: 16),
-              // Content Column
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 24.0, top: 4.0),
