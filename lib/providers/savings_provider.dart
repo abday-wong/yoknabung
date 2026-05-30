@@ -112,11 +112,11 @@ class SavingsProvider with ChangeNotifier {
   }
 
   String getLevelTitle(int level) {
-    if (level <= 1) return "Kaum Mendang-Mending";
-    if (level == 2) return "Nabung Tipis-Tipis";
-    if (level == 3) return "Anti Bokek";
-    if (level == 4) return "Calon Sultan";
-    return "Sultan Komplek";
+    if (level <= 1) return "cupu luwh";
+    if (level == 2) return "bole laa";
+    if (level == 3) return "kelas kink";
+    if (level == 4) return "njir banyak duid";
+    return "dah mentok kink";
   }
 
   double? addTransaction(String goalId, Transaction tx) {
