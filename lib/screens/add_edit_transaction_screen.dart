@@ -805,7 +805,7 @@ class _MilestoneCelebrationDialogState extends State<MilestoneCelebrationDialog>
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      isFinished ? '🏆 AKHIRNYA LUNAS!' : '🎉 WIH, UDAH 50%!',
+                      isFinished ? 'AKHIRNYA LUNAS! 😸' : 'WIH, UDAH 50%! 😸',
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 22,
@@ -817,8 +817,8 @@ class _MilestoneCelebrationDialogState extends State<MilestoneCelebrationDialog>
                     const SizedBox(height: 16),
                     Text(
                       isFinished
-                          ? 'Gokil, tabungan lu udah tembus 100%! Saatnya checkout barangnya sekarang juga! 🥳'
-                          : 'Dikit lagi nyampe nih! Tabungan lu udah keisi ${widget.percentage.toInt()}%. Gas terus nabungnya, jangan kendor ya! 🚀',
+                          ? 'Gokil, tabungan lu udah tembus 100%! Saatnya checkout barangnya sekarang juga 😹'
+                          : 'Dikit lagi nyampe nih! Tabungan lu udah keisi ${widget.percentage.toInt()}%. Gas terus nabungnya, jangan kendor ya 😹',
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 14,
@@ -835,14 +835,14 @@ class _MilestoneCelebrationDialogState extends State<MilestoneCelebrationDialog>
                           border: Border.all(color: const Color(0xFF111111), width: 3),
                         ),
                         child: Text(
-                          isFinished ? '👑' : '⭐',
+                          isFinished ? '😹' : '😸',
                           style: const TextStyle(fontSize: 48),
                         ),
                       ),
                     ),
                     const SizedBox(height: 28),
                     NeoButton(
-                      text: isFinished ? 'Mantap, Kelar! 🏁' : 'Gas Terus! 🔥',
+                      text: isFinished ? 'Mantap, Kelar! 😸' : 'Gas Terus! 😸',
                       color: const Color(0xFF111111),
                       textColor: Colors.white,
                       onPressed: widget.onDismiss,
