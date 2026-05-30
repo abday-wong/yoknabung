@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -49,6 +50,11 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     final category = _selectedCategory;
     final message = _messageController.text.trim();
 
+    // Dapatkan data perangkat & aplikasi untuk template email
+    final platform = Platform.isAndroid ? 'Android' : Platform.isIOS ? 'iOS' : 'Web';
+    const appVersion = '2.0.1+2';
+    final sentAt = DateTime.now().toLocal().toString().split('.')[0];
+
     try {
       final response = await http.post(
         Uri.parse('https://api.emailjs.com/api/v1.0/email/send'),
@@ -67,6 +73,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
             'from_email': email.isNotEmpty ? email : 'tidak_disediakan@yoknabung.app',
             'category': category,
             'message': message,
+            'platform': platform,
+            'app_version': appVersion,
+            'sent_at': sentAt,
           },
         }),
       ).timeout(const Duration(seconds: 15));
