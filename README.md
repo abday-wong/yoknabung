@@ -36,7 +36,7 @@ Seluruh elemen antarmuka (UI/UX) YokNabung mengadopsi bahasa desain Neo-Brutalis
 *   Memproyeksikan estimasi tanggal ketercapaian tiap milestone berdasarkan riwayat menabung Anda.
 
 ### 4. Pengaduan Layanan Terintegrasi (Feedback System)
-*   **Background Dispatch (FormSubmit API)**: Pengaduan, saran, atau laporan kendala dapat dikirim langsung dari dalam aplikasi ke email pengembang tanpa perlu membuka aplikasi email pihak ketiga.
+*   **Background Dispatch (EmailJS API)**: Pengaduan, saran, atau laporan kendala dapat dikirim langsung dari dalam aplikasi ke email pengembang tanpa perlu membuka aplikasi email pihak ketiga.
 *   **Smart Fallback**: Jika perangkat tidak memiliki koneksi internet, sistem akan otomatis mengarahkan draft pengaduan via email client lokal sebagai cadangan.
 
 ### 5. Notifikasi Pengingat Menabung Harian
@@ -53,7 +53,7 @@ graph TD
     UI[View/Screens] -->|Membaca State & Trigger Aksi| Provider[SavingsProvider]
     Provider -->|Mengelola State| Models[SavingGoal & Transaction Models]
     Provider -->|Persistensi Data| LocalDB[SharedPreferences]
-    UI -->|Mengirim Pengaduan| FormSubmitAPI[FormSubmit.co API]
+    UI -->|Mengirim Pengaduan| EmailJSAPI[EmailJS API]
 ```
 
 ### Struktur Folder
