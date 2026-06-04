@@ -1,4 +1,4 @@
-# YokNabung 💰 — Premium Neo-Brutalist Savings Tracker
+# YokNabung — Premium Neo-Brutalist Savings Tracker
 
 [![Flutter Version](https://img.shields.io/badge/Flutter-%E2%89%A53.19.0-02569B?logo=flutter&logoColor=white&style=for-the-badge)](https://flutter.dev)
 [![Dart Version](https://img.shields.io/badge/Dart-%E2%89%A53.3.0-0175C2?logo=dart&logoColor=white&style=for-the-badge)](https://dart.dev)
@@ -9,7 +9,7 @@
 
 ---
 
-## 🎨 Karakteristik Desain (Neo-Brutalisme)
+## Karakteristik Desain (Neo-Brutalisme)
 
 Seluruh elemen antarmuka (UI/UX) YokNabung mengadopsi bahasa desain Neo-Brutalist modern untuk memberikan pengalaman taktil dan visual yang menonjol:
 *   **Warna Latar Premium**: Warm Cream (`#FFFDE7`) untuk kenyamanan membaca dalam waktu lama.
@@ -19,7 +19,7 @@ Seluruh elemen antarmuka (UI/UX) YokNabung mengadopsi bahasa desain Neo-Brutalis
 
 ---
 
-## 🚀 Fitur Unggulan
+## Fitur Unggulan
 
 ### 1. Pelacak & Detil Target Interaktif
 *   **Kategori & Emoji Custom**: Atur target tabungan Anda dengan emoji pilihan dan kategori visual (Pendidikan, Gadget, Liburan, Dana Darurat, dll.).
@@ -44,7 +44,7 @@ Seluruh elemen antarmuka (UI/UX) YokNabung mengadopsi bahasa desain Neo-Brutalis
 
 ---
 
-## 🛠️ Arsitektur Kode (Clean Architecture)
+## Arsitektur Kode (Clean Architecture)
 
 Aplikasi ini dirancang dengan prinsip pemisahan lapisan (separation of concerns) untuk kemudahan pemeliharaan dan pengujian:
 
@@ -82,7 +82,7 @@ lib/
 
 ---
 
-## 📦 Paket & Dependensi Utama
+## Paket & Dependensi Utama
 
 | Package | Kegunaan |
 | :--- | :--- |
@@ -97,7 +97,7 @@ lib/
 
 ---
 
-## 🏁 Panduan Memulai Jalankan Proyek
+## Panduan Memulai Jalankan Proyek
 
 ### Prasyarat
 Pastikan komputer Anda sudah terpasang **Flutter SDK** versi terbaru (disarankan versi >= 3.19.0).
@@ -135,6 +135,6 @@ Pastikan komputer Anda sudah terpasang **Flutter SDK** versi terbaru (disarankan
 
 ---
 
-## 🔒 Lisensi
+## Lisensi
 
 Proyek ini dilisensikan di bawah Lisensi MIT. Lihat file [LICENSE](LICENSE) untuk detail lebih lanjut.
